@@ -48,7 +48,7 @@ const $=id=>document.getElementById(id);
 const ST=JSON.parse(localStorage.getItem('lcr4')||'{"stars":0}');
 const save=()=>localStorage.setItem('lcr4',JSON.stringify(ST));
 const stars=()=>$('stars').textContent=ST.stars;
-let scene='ranch', helpTxt='', phase='idle';
+let scene='ranch', helpTxt='', phase='idle', holeN=0;
 function sky(d){return `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${d?'#e88948':'#74c3d8'}"/><stop offset="1" stop-color="${d?'#f3d7a0':'#cfe89a'}"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8a96"/><stop offset="1" stop-color="#163e48"/></linearGradient></defs><rect width="1000" height="620" fill="url(#sky)"/><circle cx="860" cy="70" r="44" fill="${d?'#ffd08a':'#ffe27a'}"/>`}
 function hills(){return `<path d="M0 260 C160 200 280 240 420 190 C580 130 720 210 1000 170 L1000 420 L0 420Z" fill="#3a6e3c"/><path d="M0 320 C200 260 380 310 560 270 C740 230 880 300 1000 270 L1000 440 L0 440Z" fill="#2b5530"/>`}
 function tree(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})"><rect x="-7" y="30" width="14" height="50" rx="2" fill="#6a4224"/><ellipse cy="10" rx="36" ry="42" fill="#2f6d38"/><ellipse cx="-16" cy="-8" rx="20" ry="22" fill="#3f8a46"/></g>`}
@@ -175,12 +175,12 @@ function go(name){
 }
 function act(a){
   hideHelp();
-  if(a==='hole') go('fish');
+  if(a==='hole'){holeN=0;go('fish');}
   else if(a==='range') go('range');
   else if(a==='trap') go('trap');
   else if(a==='cast') cast();
   else if(a==='reel') reel();
-  else if(a==='heavier') weigh();
+  else if(a==='heavier') afterFish();
   else if(a==='shoot') shoot();
   else if(a.startsWith('trap')) checkTrap(+a.slice(4));
   else if(a==='skip') skip();
@@ -212,11 +212,12 @@ function fish(){
   $('where').textContent='The Hole';
   helpTxt='Click the lake to cast. When the bass jumps, click the fish.';
   if(phase==='idle'){
-    hint('Click the lake to cast');
+    const left=3-holeN;
+    hint(left===3?'Click the lake to cast — 3 casts':left===2?'Cast again — 2 left':'Last cast');
     $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+
       `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="cast"/>
        <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
-       <text x="620" y="470" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">click the lake</text>`
+       <text x="620" y="470" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">click the lake · ${left} left</text>`
       +rylee(110,280)+pole(125,278)+friend(220,258);
   } else if(phase==='bite'){
     hint('FISH ON — click the bass');
@@ -242,14 +243,27 @@ function cast(){
 }
 function reel(){
   phase='land';
-  hint('Tap the heavier bass. Hundreds match — look at the tens.');
-  helpTxt='Both have 2 hundreds. 8 tens is 80. 6 tens is 60. Yours wins.';
+  const rounds=[
+    {a:285,b:264,q:'Which bass is heavier?',h:'Both have 2 hundreds. 8 tens beats 6 tens.'},
+    {a:418,b:481,q:'Which bass is heavier?',h:'Same hundreds. Look at the tens. 1 ten vs 8 tens.'},
+    {a:308,b:380,q:'Which bass is heavier?',h:'Same hundreds. 0 tens vs 8 tens.'}
+  ];
+  const r=rounds[Math.min(holeN,2)];
+  hint('Tap the heavier bass');
+  helpTxt=r.h;
   $('sc').innerHTML=sky()+hills()+
     `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
     +rylee(80,230)+friend(170,208)+
-    `<text x="500" y="70" text-anchor="middle" font-size="28" font-weight="800">Which bass is heavier?</text>
-     <g data-act="heavier">${bass(380,180,1.05)}${tags(285,275,230,'Rylee 285')}</g>
-     <g>${bass(720,200,.95)}${tags(264,615,250,'Friend 264')}</g>`;
+    `<text x="500" y="70" text-anchor="middle" font-size="28" font-weight="800">${r.q}</text>
+     <text x="500" y="100" text-anchor="middle" font-size="16">cast ${holeN+1} of 3</text>
+     <g data-act="heavier">${bass(380,180,1.05)}${tags(r.a,275,230,'Rylee '+r.a)}</g>
+     <g>${bass(720,200,.95)}${tags(r.b,615,250,'Friend '+r.b)}</g>`;
+}
+function afterFish(){
+  ST.stars++; save(); stars();
+  holeN++;
+  if(holeN<3){ phase='idle'; fish(); }
+  else weigh();
 }
 function weigh(){
   ST.stars++; save(); stars();
@@ -339,21 +353,23 @@ function grandma(){
   hint('Click the creek to skip a rock');
   window._sk=0;
   $('sc').innerHTML=sky(1)+hills()+
-    `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>
+    `<rect y="380" width="1000" height="240" fill="url(#w)"/>
      <text x="420" y="80" text-anchor="middle" font-size="28" font-weight="800">You made it to Grandma</text>
      <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek</text>
-     <text x="280" y="460" fill="#fff" font-size="18">click the water</text>`
-    +house()+nana(200,300)+rylee(90,360)+friend(280,340);
+     <text x="280" y="460" fill="#fff" font-size="18">skip 3 times</text>`
+    +house()+nana(200,300)+rylee(90,360)+friend(280,340)+
+    `<rect y="380" width="1000" height="240" fill="#0000" data-act="skip"/>`;
 }
 function skip(){
   window._sk=(window._sk||0)+1;
   const n=window._sk;
+  hint(n===1?'One hop. Click again.':n===2?'Two hops. One more.':'Three hops. That is a good skip.');
   $('sc').innerHTML=sky(1)+hills()+
-    `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>
-     <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek</text>`
-    +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340);
-  if(n<3) hint(n===1?'One hop. Click the creek again.':'Two hops. One more.');
-  else { ST.stars+=2;save();stars(); hint('Three hops. That is a good skip.'); setTimeout(()=>go('ranch'),1100); }
+    `<rect y="380" width="1000" height="240" fill="url(#w)"/>
+     <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek · ${Math.min(n,3)} / 3</text>`
+    +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340)+
+    `<rect y="380" width="1000" height="240" fill="#0000" data-act="skip"/>`;
+  if(n>=3){ ST.stars+=2;save();stars(); setTimeout(()=>go('ranch'),1100); }
 }
 stars();
 bind();
