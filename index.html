@@ -48,7 +48,8 @@ const $=id=>document.getElementById(id);
 const ST=JSON.parse(localStorage.getItem('lcr4')||'{"stars":0}');
 const save=()=>localStorage.setItem('lcr4',JSON.stringify(ST));
 const stars=()=>$('stars').textContent=ST.stars;
-let scene='ranch', helpTxt='', phase='idle', holeN=0;
+let scene='ranch', helpTxt='', phase='idle';
+let bank=[], qi=0, afterDraw=null;
 function sky(d){return `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${d?'#e88948':'#74c3d8'}"/><stop offset="1" stop-color="${d?'#f3d7a0':'#cfe89a'}"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8a96"/><stop offset="1" stop-color="#163e48"/></linearGradient></defs><rect width="1000" height="620" fill="url(#sky)"/><circle cx="860" cy="70" r="44" fill="${d?'#ffd08a':'#ffe27a'}"/>`}
 function hills(){return `<path d="M0 260 C160 200 280 240 420 190 C580 130 720 210 1000 170 L1000 420 L0 420Z" fill="#3a6e3c"/><path d="M0 320 C200 260 380 310 560 270 C740 230 880 300 1000 270 L1000 440 L0 440Z" fill="#2b5530"/>`}
 function tree(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})"><rect x="-7" y="30" width="14" height="50" rx="2" fill="#6a4224"/><ellipse cy="10" rx="36" ry="42" fill="#2f6d38"/><ellipse cx="-16" cy="-8" rx="20" ry="22" fill="#3f8a46"/></g>`}
@@ -56,18 +57,8 @@ function rylee(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="78"
 function friend(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="102" rx="28" ry="9" fill="#0003"/><rect x="-18" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="4" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="-26" y="28" width="52" height="46" rx="8" fill="#8b3a22"/><rect x="-26" y="44" width="52" height="6" fill="#d9c08a"/><circle cy="6" r="19" fill="#f0c49a"/><path d="M-18 2 C-20 -16 20 -16 18 2" fill="#5c2e16"/><path d="M-17 10 C-18 34 18 34 17 10 C10 22 -10 22 -17 10" fill="#8a3d22"/><circle cx="-6" cy="4" r="2" fill="#2a1c10"/><circle cx="6" cy="4" r="2" fill="#2a1c10"/></g>`}
 function mama(x,y){return `<g transform="translate(${x} ${y})"><path d="M-14 28 C-16 70 -8 76 0 76 C8 76 16 70 14 28Z" fill="#c45c6a"/><circle cy="10" r="13" fill="#f0c49a"/><path d="M-14 4 C-18 14 -16 36 -6 32 C-2 14 2 14 6 32 C16 36 18 14 14 4 C8 -12 -8 -12 -14 4Z" fill="#4a2c18"/></g>`}
 function nana(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
-function bass(x,y,s,hit){
-  const sc=s||1;
-  return `<g transform="translate(${x} ${y}) scale(${sc})">
-    ${hit?`<circle r="70" fill="#0000" pointer-events="all"/>`:''}
-    <g>
-      <animateTransform attributeName="transform" type="translate" values="0 0;0 -10;0 0" dur="1.6s" repeatCount="indefinite"/>
-      <ellipse rx="54" ry="22" fill="#3f8a3a"/>
-      <path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/>
-      <circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/>
-    </g>
-  </g>`;
-}
+function bass(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})"><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g>`}
+function bassHit(x,y){return `<g transform="translate(${x} ${y}) scale(1.4)"><circle r="70" fill="#0000" pointer-events="all"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -10;0 0" dur="1.6s" repeatCount="indefinite"/><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g></g>`}
 function post(mark){
   const y = mark==null?null:(180-((mark-40)/10)*180);
   return `<g transform="translate(820 70)">
@@ -94,25 +85,21 @@ function tags(n,x,y,who){
     <text x="171" y="82" text-anchor="middle" fill="#f3e2b0" font-size="10">ones</text>
   </g>`;
 }
-function strip(whole,part){
+function strip(whole,part,partLabel,restLabel){
   const w=420,a=part/whole*w;
-  return `<g transform="translate(80 500)">
+  return `<g transform="translate(80 470)">
     <rect width="${w}" height="46" rx="10" fill="#e8d7a8"/>
     <rect width="${a}" height="46" rx="10" fill="#c45c12"/>
-    <text x="${a/2}" y="30" text-anchor="middle" fill="#fff" font-size="18">${part} empty</text>
-    <text x="${a+(w-a)/2}" y="30" text-anchor="middle" font-size="18">n</text>
+    <text x="${a/2}" y="30" text-anchor="middle" fill="#fff" font-size="16">${part} ${partLabel||''}</text>
+    <text x="${a+(w-a)/2}" y="30" text-anchor="middle" font-size="16">${restLabel||'n'}</text>
     <text x="${w/2}" y="70" text-anchor="middle" font-size="16">whole = ${whole}</text>
   </g>`;
 }
-function critter(){
-  return `<g><ellipse cx="28" cy="40" rx="16" ry="10" fill="#5a4030"/><circle cx="16" cy="32" r="8" fill="#5a4030"/><circle cx="13" cy="30" r="1.4" fill="#111"/><ellipse cx="8" cy="28" rx="4" ry="5" fill="#3a2a20"/><ellipse cx="20" cy="28" rx="4" ry="5" fill="#3a2a20"/><ellipse cx="42" cy="40" rx="5" ry="3" fill="#5a4030"/></g>`;
-}
+function critter(){return `<g><ellipse cx="28" cy="40" rx="16" ry="10" fill="#5a4030"/><circle cx="16" cy="32" r="8" fill="#5a4030"/><circle cx="13" cy="30" r="1.4" fill="#111"/><ellipse cx="8" cy="28" rx="4" ry="5" fill="#3a2a20"/><ellipse cx="20" cy="28" rx="4" ry="5" fill="#3a2a20"/><ellipse cx="42" cy="40" rx="5" ry="3" fill="#5a4030"/></g>`}
 function cage(x,y,t,i){
   const label = !t.open ? 'check' : (t.full ? 'got one' : 'empty');
-  const door = t.open
-    ? `<rect x="58" y="8" width="8" height="44" rx="1" fill="#c4a46a"/>`
-    : `<rect x="4" y="8" width="8" height="44" rx="1" fill="#8a6a3a"/>`;
-  const inside = !t.open ? '' : (t.full ? critter() : '');
+  const door = t.open ? `<rect x="58" y="8" width="8" height="44" rx="1" fill="#c4a46a"/>` : `<rect x="4" y="8" width="8" height="44" rx="1" fill="#8a6a3a"/>`;
+  const inside = (!t.open || !t.full) ? '' : critter();
   return `<g data-act="trap${i}" transform="translate(${x} ${y})">
     <rect width="70" height="60" rx="4" fill="${t.open?'#e8d7a8':'#6b7a6b'}" stroke="#2a2a22" stroke-width="2"/>
     <rect x="8" y="8" width="54" height="36" fill="${t.open?'#f6edd4':'#4a5a4a'}" stroke="#2a2a22"/>
@@ -122,170 +109,152 @@ function cage(x,y,t,i){
     <text x="35" y="56" text-anchor="middle" font-size="10" font-weight="700">${label}</text>
   </g>`;
 }
-function truck(){
-  return `<g transform="translate(760 360)">
-    <rect x="10" y="48" width="170" height="50" rx="6" fill="#c45c12"/>
-    <rect x="118" y="18" width="62" height="40" rx="4" fill="#9a3a10"/>
-    <rect x="128" y="26" width="36" height="18" fill="#8ec8e0"/>
-    <circle cx="44" cy="98" r="14" fill="#1c1916"/><circle cx="150" cy="98" r="14" fill="#1c1916"/>
-    <rect x="18" y="54" width="90" height="36" rx="3" fill="#efe6c8"/>
-    <text x="95" y="12" text-anchor="middle" font-size="13" font-weight="800">JACKSBORO SHELTER</text>
-    <text x="63" y="76" text-anchor="middle" font-size="11">truck</text>
-  </g>`;
-}
+function truck(){return `<g transform="translate(760 360)"><rect x="10" y="48" width="170" height="50" rx="6" fill="#c45c12"/><rect x="118" y="18" width="62" height="40" rx="4" fill="#9a3a10"/><rect x="128" y="26" width="36" height="18" fill="#8ec8e0"/><circle cx="44" cy="98" r="14" fill="#1c1916"/><circle cx="150" cy="98" r="14" fill="#1c1916"/><rect x="18" y="54" width="90" height="36" rx="3" fill="#efe6c8"/><text x="95" y="12" text-anchor="middle" font-size="13" font-weight="800">JACKSBORO SHELTER</text><text x="63" y="76" text-anchor="middle" font-size="11">truck</text></g>`}
 function pole(x,y){return `<g transform="translate(${x} ${y})"><line x1="0" y1="0" x2="90" y2="-110" stroke="#6b4423" stroke-width="4"/><line x1="90" y1="-110" x2="220" y2="-10" stroke="#d7e8ee" stroke-width="1.5"/></g>`}
 function tin(x,y){return `<g transform="translate(${x} ${y})"><rect x="-11" y="-30" width="22" height="30" rx="2" fill="#c45c12"/><ellipse cy="-30" rx="11" ry="5" fill="#e07028"/><ellipse cy="0" rx="11" ry="4" fill="#8a3010"/><text y="-12" text-anchor="middle" fill="#fff" font-size="8">can</text></g>`}
 function house(){return `<g transform="translate(620 180)"><polygon points="0,70 110,0 220,70" fill="#6b2a22"/><rect x="20" y="70" width="180" height="110" fill="#c4a46a"/><rect x="90" y="110" width="40" height="70" fill="#5a3416"/><rect x="40" y="90" width="30" height="24" fill="#8ec8e0"/><rect x="150" y="90" width="30" height="24" fill="#8ec8e0"/><rect x="0" y="170" width="220" height="16" fill="#8a562c"/><text x="110" y="64" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">Grandma</text></g>`}
-function ripples(n){
-  let s='';
-  for(let i=0;i<n;i++){const x=280+i*160;s+=`<ellipse cx="${x}" cy="470" rx="40" ry="12" fill="none" stroke="#d5f3f8" stroke-width="3"/><circle cx="${x}" cy="470" r="6" fill="#c4a46a"/>`;}
-  return s;
-}
+function ripples(n){let s='';for(let i=0;i<n;i++){const x=280+i*160;s+=`<ellipse cx="${x}" cy="470" rx="40" ry="12" fill="none" stroke="#d5f3f8" stroke-width="3"/><circle cx="${x}" cy="470" r="6" fill="#c4a46a"/>`;}return s}
 function hint(t){$('hint').textContent=t||'';$('hint').classList.toggle('hide',!t)}
-function ask(){
-  const h=$('help');
-  if(h.classList.contains('hide')){h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+(helpTxt||'Click the glowing thing. That is the next move.');h.style.left='60px';h.style.top='70px'}
-  else h.classList.add('hide');
-}
+function ask(){const h=$('help');if(h.classList.contains('hide')){h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+(helpTxt||'Click the glowing thing.');h.style.left='60px';h.style.top='70px'}else h.classList.add('hide')}
 function hideHelp(){$('help').classList.add('hide')}
+function clearUI(){$('app').classList.remove('has-picks');$('dock').classList.add('hide');$('q').textContent='';$('picks').innerHTML='';hideHelp()}
 function picks(question,opts,onOk){
   $('app').classList.add('has-picks');
   $('dock').classList.remove('hide');
   $('q').textContent=question;
   $('picks').innerHTML=opts.map((o,i)=>`<button id="p${i}">${o.t}</button>`).join('');
   opts.forEach((o,i)=>$(`p${i}`).onclick=()=>{
-    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{ clearUI(); onOk(); },400)}
-    else {$(`p${i}`).className='no'; helpTxt=o.hint; ask()}
+    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{clearUI();onOk()},350)}
+    else{$(`p${i}`).className='no';helpTxt=o.hint||'Try the other one.';ask()}
   });
 }
-function clearUI(){$('app').classList.remove('has-picks');$('dock').classList.add('hide');$('q').textContent='';$('picks').innerHTML='';hideHelp()}
-function bind(){
-  $('sc').onclick=e=>{
-    const t=e.target.closest('[data-act]');
-    if(t) act(t.getAttribute('data-act'));
-  };
+function nextBtn(label,fn){
+  $('app').classList.add('has-picks');
+  $('dock').classList.remove('hide');
+  $('q').textContent=label;
+  $('picks').innerHTML='<button id="p0" class="ok">Next</button>';
+  $('p0').onclick=()=>{clearUI();fn()};
 }
+function bind(){$('sc').onclick=e=>{const t=e.target.closest('[data-act]');if(t)act(t.getAttribute('data-act'))}}
 function go(name){
-  scene=name;phase='idle';clearUI();
-  if(name==='ranch') ranch();
-  else if(name==='fish') fish();
-  else if(name==='range') range();
-  else if(name==='trap') trap();
-  else if(name==='grandma') grandma();
+  scene=name;phase='idle';bank=[];qi=0;afterDraw=null;clearUI();
+  if(name==='ranch')ranch();
+  else if(name==='fish')fish();
+  else if(name==='range')range();
+  else if(name==='trap')trap();
+  else if(name==='grandma')seeGrandma();
 }
 function act(a){
   hideHelp();
-  if(a==='hole'){holeN=0;go('fish');}
-  else if(a==='range') go('range');
-  else if(a==='trap') go('trap');
-  else if(a==='cast') cast();
-  else if(a==='reel') reel();
-  else if(a==='heavier') afterFish();
-  else if(a==='shoot') shoot();
-  else if(a.startsWith('trap')) checkTrap(+a.slice(4));
-  else if(a==='skip') skip();
+  if(a==='hole')go('fish');
+  else if(a==='range')go('range');
+  else if(a==='trap')go('trap');
+  else if(a==='cast')cast();
+  else if(a==='reel')askQ();
+  else if(a==='shoot')askQ();
+  else if(a.startsWith('trap'))checkTrap(+a.slice(4));
+  else if(a==='skip')skip();
+}
+function right(){
+  qi++;
+  if(qi<bank.length){
+    nextBtn('Got it. Question '+(qi+1)+' of '+bank.length, ()=>{
+      if(afterDraw)afterDraw(bank[qi]);
+      askQ();
+    });
+  } else {
+    nextBtn('Level done. Go see Grandma', seeGrandma);
+  }
+}
+function askQ(){
+  const item=bank[qi];
+  if(!item)return;
+  helpTxt=item.h;
+  if(afterDraw)afterDraw(item);
+  picks(item.q+'  ('+(qi+1)+' of '+bank.length+')', item.opts, right);
 }
 function ranch(){
   $('where').textContent='Lost Creek Ranch';
-  helpTxt='Lake to fish. Cans to shoot. Cages to check.';
-  hint('Click a place to go');
+  helpTxt='Lake, range, or trapline. Each one is a whole level.';
+  hint('Pick a level');
   $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+tree(940,230,.9)+
     `<g data-act="hole">
        <ellipse cx="200" cy="470" rx="170" ry="78" fill="url(#w)" stroke="#ffe27a" stroke-width="4"/>
        <text x="200" y="430" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">THE HOLE</text>
-       <text x="200" y="455" text-anchor="middle" fill="#fff" font-size="14">fish bass</text>
+       <text x="200" y="455" text-anchor="middle" fill="#fff" font-size="14">3 compare questions</text>
      </g>
      <g data-act="range">
        <rect x="400" y="400" width="230" height="130" rx="12" fill="#c4a46a" stroke="#ffe27a" stroke-width="4"/>
        <rect x="420" y="448" width="190" height="10" fill="#6b4423"/>
        <text x="515" y="430" text-anchor="middle" font-size="20" font-weight="800">RANGE</text>
+       <text x="515" y="500" text-anchor="middle" font-size="13">3 rounding questions</text>
      </g>
      <g data-act="trap">
        <rect x="670" y="400" width="280" height="130" rx="12" fill="#2f5530" stroke="#ffe27a" stroke-width="4"/>
        <text x="810" y="430" text-anchor="middle" fill="#fff" font-size="20" font-weight="800">TRAPLINE</text>
-       <text x="810" y="452" text-anchor="middle" fill="#fff" font-size="13">cages + shelter truck</text>
+       <text x="810" y="452" text-anchor="middle" fill="#fff" font-size="13">3 count questions</text>
      </g>`
-    +`<g data-act="range">`+tin(455,448)+tin(515,448)+tin(575,448)+`</g>`
+    +tin(455,448)+tin(515,448)+tin(575,448)
     +rylee(360,300)+friend(470,278)+mama(580,308);
 }
+const FISH = [
+  {a:285,b:264,q:'Which bass is heavier?',h:'Same hundreds. Look at the tens. 8 tens beat 6 tens.',opts:[
+    {t:'Rylee 285',ok:1},{t:'Friend 264',hint:'8 tens is more than 6 tens.'},{t:'They weigh the same',hint:'The tens are different.'}]},
+  {a:418,b:481,q:'Which bass is heavier?',h:'Same hundreds. 1 ten vs 8 tens.',opts:[
+    {t:'Rylee 418',hint:'Look at the tens. 1 ten is less than 8 tens.'},{t:'Friend 481',ok:1},{t:'They weigh the same',hint:'The tens are different.'}]},
+  {a:702,b:720,q:'Which bass is heavier?',h:'Same hundreds. 0 tens vs 2 tens.',opts:[
+    {t:'Rylee 702',hint:'0 tens is less than 2 tens.'},{t:'Friend 720',ok:1},{t:'They weigh the same',hint:'Look at the tens place.'}]}
+];
 function fish(){
   $('where').textContent='The Hole';
-  helpTxt='Click the lake to cast. When the bass jumps, click the fish.';
-  if(phase==='idle'){
-    const left=3-holeN;
-    hint(left===3?'Click the lake to cast — 3 casts':left===2?'Cast again — 2 left':'Last cast');
-    $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+
-      `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="cast"/>
-       <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
-       <text x="620" y="470" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">click the lake · ${left} left</text>`
-      +rylee(110,280)+pole(125,278)+friend(220,258);
-  } else if(phase==='bite'){
+  bank=FISH; qi=0;
+  afterDraw=drawFishQ;
+  helpTxt='Click the lake to cast. Catch a bass, then answer.';
+  hint('Click the lake to cast');
+  $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+
+    `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="cast"/>
+     <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
+     <text x="620" y="470" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">click the lake</text>`
+    +rylee(110,280)+pole(125,278)+friend(220,258);
+}
+function drawFishQ(item){
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
+    +rylee(80,230)+friend(170,208)
+    +bass(380,180,1.05)+tags(item.a,275,230,'Rylee '+item.a)
+    +bass(720,200,.95)+tags(item.b,615,250,'Friend '+item.b);
+}
+function cast(){
+  hint('Wait for it...');
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
+     <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
+     <ellipse cx="640" cy="440" rx="50" ry="16" fill="none" stroke="#d5f3f8" stroke-width="4"/>
+     <text x="640" y="390" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">waiting on a bite</text>`
+    +rylee(110,280)+pole(125,278)+friend(220,258);
+  setTimeout(()=>{
     hint('FISH ON — click the bass');
     $('sc').innerHTML=sky()+hills()+
       `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="reel"/>
        <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
        <text x="620" y="360" text-anchor="middle" fill="#fff" font-size="28" font-weight="800">FISH ON — click the bass</text>`
       +rylee(110,280)+pole(125,278)+friend(220,258)+
-      `<g data-act="reel">${bass(640,430,1.4,1)}</g>`;
-  }
+      `<g data-act="reel">${bassHit(640,430)}</g>`;
+  },800);
 }
-function cast(){
-  phase='wait';
-  hint('Wait for it...');
-  $('sc').innerHTML=sky()+hills()+
-    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
-     <rect x="0" y="348" width="300" height="22" fill="#8a562c"/>
-     <ellipse cx="640" cy="440" rx="50" ry="16" fill="none" stroke="#d5f3f8" stroke-width="4"/>
-     <ellipse cx="640" cy="440" rx="26" ry="8" fill="#d5f3f8" opacity=".6"/>
-     <text x="640" y="390" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">waiting on a bite</text>`
-    +rylee(110,280)+pole(125,278)+friend(220,258);
-  setTimeout(()=>{ phase='bite'; fish(); },900);
-}
-function reel(){
-  phase='land';
-  const rounds=[
-    {a:285,b:264,q:'Which bass is heavier?',h:'Both have 2 hundreds. 8 tens beats 6 tens.'},
-    {a:418,b:481,q:'Which bass is heavier?',h:'Same hundreds. Look at the tens. 1 ten vs 8 tens.'},
-    {a:308,b:380,q:'Which bass is heavier?',h:'Same hundreds. 0 tens vs 8 tens.'}
-  ];
-  const r=rounds[Math.min(holeN,2)];
-  hint('Tap the heavier bass');
-  helpTxt=r.h;
-  $('sc').innerHTML=sky()+hills()+
-    `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
-    +rylee(80,230)+friend(170,208)+
-    `<text x="500" y="70" text-anchor="middle" font-size="28" font-weight="800">${r.q}</text>
-     <text x="500" y="100" text-anchor="middle" font-size="16">cast ${holeN+1} of 3</text>
-     <g data-act="heavier">${bass(380,180,1.05)}${tags(r.a,275,230,'Rylee '+r.a)}</g>
-     <g>${bass(720,200,.95)}${tags(r.b,615,250,'Friend '+r.b)}</g>`;
-}
-function afterFish(){
-  ST.stars++; save(); stars();
-  holeN++;
-  if(holeN<3){ phase='idle'; fish(); }
-  else weigh();
-}
-function weigh(){
-  ST.stars++; save(); stars();
-  hint('Cooler. Same hundreds. Sort by tens, lightest first.');
-  helpTxt='308 has 0 tens. Then 318. Then 381.';
-  $('sc').innerHTML=sky()+hills()+
-    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
-     <rect x="180" y="140" width="640" height="220" rx="16" fill="#1f4a3a"/>
-     <text x="500" y="168" text-anchor="middle" fill="#f3e2b0" font-size="16">the cooler</text>
-     <text x="500" y="196" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">Lightest to heaviest?</text>`
-    +bass(300,230,.7)+bass(500,230,.7)+bass(700,230,.7)+
-    tags(308,195,280,'')+tags(318,395,280,'')+tags(381,595,280,'')
-    +rylee(80,400)+friend(160,378);
-  picks('Lightest to heaviest?',[
-    {t:'308, 318, 381',ok:1},
-    {t:'318, 308, 381',hint:'308 has 0 tens. That is the lightest.'},
-    {t:'381, 318, 308',hint:'That is heaviest first. We want lightest first.'}
-  ], grandma);
-}
+const RANGE = [
+  {n:47,q:'Round 47 to the nearest ten',h:'Gold mark is 47. It already passed the middle 45, so up to 50.',opts:[
+    {t:'50 yards',ok:1},{t:'40 yards',hint:'45 is the middle. 47 is above it.'},{t:'47 yards',hint:'Rounding picks a friendly ten.'}]},
+  {n:42,q:'Round 42 to the nearest ten',h:'42 is below the middle mark 45, so it goes down to 40.',opts:[
+    {t:'40 yards',ok:1},{t:'50 yards',hint:'42 is under 45. That is closer to 40.'},{t:'42 yards',hint:'We want the nearest ten.'}]},
+  {n:45,q:'Round 45 to the nearest ten',h:'45 is the middle mark between 40 and 50. Middle goes up.',opts:[
+    {t:'40 yards',hint:'When it is right in the middle, we round up to 50.'},{t:'50 yards',ok:1},{t:'45 yards',hint:'Middle of 40 and 50 goes up to 50.'}]}
+];
 function range(){
   $('where').textContent='The Range';
-  helpTxt='That wooden post is the number line. 50 top, 45 middle, 40 bottom.';
+  bank=RANGE; qi=0;
+  afterDraw=drawRangeQ;
+  helpTxt='Click a can. Then you get 3 rounding questions on the fence post.';
   hint('Click a can on the rail');
   $('sc').innerHTML=sky(1)+
     `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
@@ -294,62 +263,57 @@ function range(){
      <g data-act="shoot">${tin(250,318)+tin(390,318)+tin(530,318)+tin(670,318)}</g>`
     +post(null)+rylee(140,400)+friend(240,378);
 }
-function shoot(){
-  hint('Round 47 to the nearest ten.');
-  helpTxt='Gold mark is 47 on the post. It already passed the middle 45, so it goes up to 50.';
+function drawRangeQ(item){
   $('sc').innerHTML=sky(1)+
     `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
      <rect x="150" y="318" width="620" height="16" fill="#6b4423"/>
-     <text x="360" y="90" font-size="28" font-weight="800">Round 47 to the nearest ten</text>
-     <text x="360" y="122" font-size="18">gold mark on the fence post = 47 yards</text>`
-    +post(47)+rylee(140,400)+friend(240,378);
-  picks('Round 47 to the nearest ten',[
-    {t:'50 yards',ok:1},
-    {t:'40 yards',hint:'45 is the middle mark. 47 is above it, so up to 50.'},
-    {t:'47 yards',hint:'Rounding picks a friendly ten. Look at the post.'}
-  ], grandma);
+     <text x="360" y="90" font-size="24" font-weight="800">${item.q}</text>
+     <text x="360" y="122" font-size="16">gold mark on the fence post = ${item.n} yards</text>`
+    +post(item.n)+tin(250,318)+tin(390,318)+tin(530,318)+tin(670,318)
+    +rylee(140,400)+friend(240,378);
 }
+const TRAPQ = [
+  {q:'How many animals go in the shelter truck?',h:'12 cages. 5 were empty. 12 - 5 = 7 ride in the truck.',opts:[
+    {t:'7 animals',ok:1},{t:'12 animals',hint:'Empty cages stay. Only full cages go.'},{t:'5 animals',hint:'5 were empty. The others go.'}]},
+  {q:'How many cages were empty?',h:'You opened 12. 7 had an animal. 12 - 7 = 5 empty.',opts:[
+    {t:'5 empty',ok:1},{t:'7 empty',hint:'7 had animals. Empty is the other part.'},{t:'12 empty',hint:'Some cages had animals in them.'}]},
+  {q:'12 cages - 5 empty = ?',h:'The strip shows 5 empty. What is left is the animals.',opts:[
+    {t:'7',ok:1},{t:'17',hint:'This is take-away, not add.'},{t:'5',hint:'5 is the empty part. We want what is left.'}]}
+];
 let traps;
 function trap(){
   $('where').textContent='The Trapline';
+  bank=TRAPQ; qi=0;
+  afterDraw=drawTrapQ;
   traps=Array(12).fill(0).map((_,i)=>({open:0,full:i>4}));
-  helpTxt='Click a cage to open it. If you see an animal, it rides to the Jacksboro shelter in the orange truck.';
+  helpTxt='Click every cage. Then you get 3 questions about the truck.';
   drawTraps();
+}
+function trapBoxes(){
+  let boxes='';
+  traps.forEach((t,i)=>{const col=i<6?i:i-6;boxes+=cage(40+col*115, i<6?170:260, t, i);});
+  return boxes;
 }
 function drawTraps(){
   const open=traps.filter(t=>t.open).length;
-  const full=traps.filter(t=>t.open&&t.full).length;
-  hint(open<12
-    ? 'These are live traps. Click each cage. Full ones ride in the shelter truck.'
-    : 'How many animals go in the Jacksboro shelter truck?');
-  let boxes='';
-  traps.forEach((t,i)=>{
-    const col=i<6?i:i-6;
-    const x=40+col*115;
-    const y=i<6?170:260;
-    boxes+=cage(x,y,t,i);
-  });
+  hint(open<12?'Click each cage. Full ones ride in the truck.':'All cages checked. Answer below.');
   $('sc').innerHTML=sky()+hills()+
     `<rect y="400" width="1000" height="220" fill="#2b5530"/>
      <text x="40" y="155" font-size="16" font-weight="800">12 humane traps</text>`
-    +boxes+truck()+rylee(40,430)+friend(130,408)
-    +(open===12?(`<text x="500" y="130" text-anchor="middle" font-size="26" font-weight="800">How many animals go in the truck?</text>`+strip(12,5)):'');
-  if(open===12){
-    helpTxt='12 cages. 5 empty. Empty stay. Animals ride in the orange Jacksboro shelter truck.';
-    picks('How many animals go in the truck?',[
-      {t:'7 animals in the truck',ok:1},
-      {t:'12 animals in the truck',hint:'Five cages were empty. Empty cages do not go.'},
-      {t:'5 animals in the truck',hint:'5 were empty. The full cages are the animals.'}
-    ], grandma);
-  }
+    +trapBoxes()+truck()+rylee(40,430)+friend(130,408);
+  if(open===12) askQ();
 }
-function checkTrap(i){
-  if(!traps[i].open){traps[i].open=1;drawTraps()}
+function drawTrapQ(){
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="400" width="1000" height="220" fill="#2b5530"/>
+     <text x="40" y="155" font-size="16" font-weight="800">12 humane traps</text>`
+    +trapBoxes()+truck()+strip(12,5,'empty','n')+rylee(40,400)+friend(130,378);
 }
-function grandma(){
-  scene='grandma'; phase='g';
+function checkTrap(i){if(!traps[i].open){traps[i].open=1;drawTraps()}}
+function seeGrandma(){
+  scene='grandma';
   $('where').textContent="Grandma's creek";
-  helpTxt='This is Grandma. Click the water three times to skip a rock.';
+  helpTxt='Click the water three times to skip a rock.';
   hint('Click the creek to skip a rock');
   window._sk=0;
   $('sc').innerHTML=sky(1)+hills()+
@@ -369,7 +333,7 @@ function skip(){
      <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek · ${Math.min(n,3)} / 3</text>`
     +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340)+
     `<rect y="380" width="1000" height="240" fill="#0000" data-act="skip"/>`;
-  if(n>=3){ ST.stars+=2;save();stars(); setTimeout(()=>go('ranch'),1100); }
+  if(n>=3){ST.stars+=2;save();stars();setTimeout(()=>go('ranch'),1100)}
 }
 stars();
 bind();
