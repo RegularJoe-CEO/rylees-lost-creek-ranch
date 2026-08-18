@@ -53,6 +53,42 @@ function friend(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="10
 function mama(x,y){return `<g transform="translate(${x} ${y})"><path d="M-14 28 C-16 70 -8 76 0 76 C8 76 16 70 14 28Z" fill="#c45c6a"/><circle cy="10" r="13" fill="#f0c49a"/><path d="M-14 4 C-18 14 -16 36 -6 32 C-2 14 2 14 6 32 C16 36 18 14 14 4 C8 -12 -8 -12 -14 4Z" fill="#4a2c18"/></g>`}
 function grandma(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
 function bass(x,y,s){return `<g class="bob" transform="translate(${x} ${y}) scale(${s||1})"><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g>`}
+function post(mark){
+  const y = mark==null?null:(180-((mark-40)/10)*180);
+  return `<g transform="translate(820 70)">
+    <rect x="-22" y="-20" width="44" height="230" rx="6" fill="#8a562c"/>
+    <rect x="-16" y="-14" width="32" height="218" rx="4" fill="#c0894a"/>
+    <line x1="0" y1="0" x2="0" y2="180" stroke="#1c1916" stroke-width="4"/>
+    <circle cy="0" r="6" fill="#1c1916"/><text x="28" y="6" font-size="18" font-weight="800">50</text>
+    <circle cy="90" r="6" fill="#c45c12"/><text x="28" y="96" font-size="18" font-weight="800" fill="#c45c12">45</text>
+    <circle cy="180" r="6" fill="#1c1916"/><text x="28" y="186" font-size="18" font-weight="800">40</text>
+    ${y==null?'':`<circle cy="${y}" r="11" fill="#f3c14a" stroke="#1c1916" stroke-width="2"/><text x="-70" y="${y+6}" font-size="20" font-weight="800">${mark}</text>`}
+    <text x="0" y="214" text-anchor="middle" font-size="12">fence post</text>
+  </g>`;
+}
+function tags(n,x,y,who){
+  const s=(''+n).padStart(3,'0');
+  return `<g transform="translate(${x} ${y})">
+    <rect width="210" height="86" rx="12" fill="#1f4a3a"/>
+    <text x="105" y="18" text-anchor="middle" fill="#f3e2b0" font-size="12">${who}</text>
+    <rect x="10" y="26" width="58" height="44" rx="8" fill="#fff"/><text x="39" y="56" text-anchor="middle" font-size="26" font-weight="800">${s[0]}</text>
+    <rect x="76" y="26" width="58" height="44" rx="8" fill="#fff"/><text x="105" y="56" text-anchor="middle" font-size="26" font-weight="800">${s[1]}</text>
+    <rect x="142" y="26" width="58" height="44" rx="8" fill="#fff"/><text x="171" y="56" text-anchor="middle" font-size="26" font-weight="800">${s[2]}</text>
+    <text x="39" y="82" text-anchor="middle" fill="#f3e2b0" font-size="10">hundreds</text>
+    <text x="105" y="82" text-anchor="middle" fill="#f3e2b0" font-size="10">tens</text>
+    <text x="171" y="82" text-anchor="middle" fill="#f3e2b0" font-size="10">ones</text>
+  </g>`;
+}
+function strip(whole,part){
+  const w=420,a=part/whole*w;
+  return `<g transform="translate(290 470)">
+    <rect width="${w}" height="46" rx="10" fill="#e8d7a8"/>
+    <rect width="${a}" height="46" rx="10" fill="#c45c12"/>
+    <text x="${a/2}" y="30" text-anchor="middle" fill="#fff" font-size="18">${part} empty</text>
+    <text x="${a+(w-a)/2}" y="30" text-anchor="middle" font-size="18">n</text>
+    <text x="${w/2}" y="70" text-anchor="middle" font-size="16">whole = ${whole}</text>
+  </g>`;
+}
 function hint(t){$('hint').textContent=t||'';$('hint').classList.toggle('hide',!t)}
 function ask(){
   const h=$('help');
@@ -139,18 +175,25 @@ function cast(){
 }
 function reel(){
   phase='land';
-  hint('Nice bass. Now tap the heavier fish.');
-  helpTxt='Hundreds are the same. Look at the tens. 8 tens beats 6 tens.';
+  hint('Tap the heavier bass. Hundreds match — look at the tens.');
+  helpTxt='Both have 2 hundreds. 8 tens is 80. 6 tens is 60. Yours wins.';
   $('sc').innerHTML=sky()+hills()+
     `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
-    +rylee(80,300)+friend(160,278)+
-    `<g data-act="heavier">${bass(420,280,1.1)}<rect x="360" y="330" width="120" height="44" rx="10" fill="#fff"/><text x="420" y="360" text-anchor="middle" font-size="28" font-weight="800">285</text><text x="420" y="400" text-anchor="middle" font-size="16">Rylee</text></g>
-     <g>${bass(700,300,1)}<rect x="640" y="350" width="120" height="44" rx="10" fill="#fff"/><text x="700" y="380" text-anchor="middle" font-size="28" font-weight="800">264</text><text x="700" y="420" text-anchor="middle" font-size="16">Friend</text></g>`;
+    +rylee(80,250)+friend(170,228)+
+    `<g data-act="heavier">${bass(380,200,1.05)}${tags(285,275,250,'Rylee 285')}</g>
+     <g>${bass(720,220,.95)}${tags(264,615,270,'Friend 264')}</g>`;
 }
 function weigh(){
   ST.stars++; save(); stars();
-  hint('Yours is heavier. 8 tens beat 6 tens.');
-  helpTxt='Same hundreds. Tens decide. Next cooler: lightest first.';
+  hint('Cooler. Same hundreds. Sort by tens, lightest first.');
+  helpTxt='308 has 0 tens. Then 318. Then 381.';
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
+     <rect x="180" y="140" width="640" height="220" rx="16" fill="#1f4a3a"/>
+     <text x="500" y="175" text-anchor="middle" fill="#f3e2b0" font-size="18">the cooler</text>`
+    +bass(300,230,.7)+bass(500,230,.7)+bass(700,230,.7)+
+    tags(308,195,280,'')+tags(318,395,280,'')+tags(381,595,280,'')
+    +rylee(80,400)+friend(160,378);
   picks([
     {t:'308, 318, 381',ok:1},
     {t:'318, 308, 381',hint:'308 has 0 tens. That is the lightest.'},
@@ -159,30 +202,26 @@ function weigh(){
 }
 function range(){
   $('where').textContent='The Range';
-  helpTxt='45 is the middle of 40 and 50. Past 45 goes up to 50.';
-  hint('Click a can');
+  helpTxt='See that fence post? 50 at the top, 40 at the bottom, 45 in the middle.';
+  hint('Click a can. The post is the number line.');
   $('sc').innerHTML=sky(1)+
     `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
-     <rect x="200" y="300" width="700" height="18" fill="#6b4423"/>
-     <g data-act="shoot"><circle cx="320" cy="292" r="22" fill="#c45c12"/><circle cx="500" cy="292" r="22" fill="#c45c12"/><circle cx="680" cy="292" r="22" fill="#c45c12"/><circle cx="840" cy="292" r="22" fill="#c45c12"/></g>`
-    +rylee(180,400)+friend(270,378);
+     <rect x="160" y="300" width="620" height="18" fill="#6b4423"/>
+     <g data-act="shoot"><circle cx="260" cy="292" r="22" fill="#c45c12"/><circle cx="400" cy="292" r="22" fill="#c45c12"/><circle cx="540" cy="292" r="22" fill="#c45c12"/><circle cx="680" cy="292" r="22" fill="#c45c12"/></g>`
+    +post(null)+rylee(140,400)+friend(230,378);
 }
 function shoot(){
-  hint('47 yards. Middle is 45. Tap the ten it rounds to.');
-  helpTxt='47 is past 45, so it goes up to 50.';
+  hint('47 sits on the post, past 45. Tap the ten it rounds to.');
+  helpTxt='The gold mark is 47. It already passed the middle 45, so it goes up to 50.';
   $('sc').innerHTML=sky(1)+
     `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
-     <line x1="700" y1="80" x2="700" y2="340" stroke="#1c1916" stroke-width="6"/>
-     <text x="720" y="90" font-size="22">50</text>
-     <text x="720" y="220" font-size="22" fill="#c45c12">45</text>
-     <text x="720" y="350" font-size="22">40</text>
-     <circle cx="700" cy="150" r="12" fill="#f3c14a"/>
-     <text x="500" y="160" font-size="36" font-weight="800">47</text>`
-    +rylee(180,400)+friend(270,378);
+     <rect x="160" y="300" width="620" height="18" fill="#6b4423"/>
+     <text x="420" y="160" font-size="40" font-weight="800">47 yards</text>`
+    +post(47)+rylee(140,400)+friend(230,378);
   picks([
     {t:'50',ok:1},
-    {t:'40',hint:'45 is the middle. 47 is past it, so up.'},
-    {t:'47',hint:'Rounding picks a friendly ten.'}
+    {t:'40',hint:'45 is the middle mark on the post. 47 is above it, so up.'},
+    {t:'47',hint:'Rounding picks a friendly ten on the post.'}
   ], grandma);
 }
 let traps;
@@ -201,9 +240,9 @@ function drawTraps(){
     const x=60+i*75, col=t.open?(t.full?'#8b3a22':'#d9c08a'):'#3a5a3a';
     boxes+=`<g data-act="trap${i}"><rect x="${x}" y="280" width="64" height="64" rx="10" fill="${col}" stroke="#fff" stroke-width="2"/><text x="${x+32}" y="318" text-anchor="middle" fill="#fff" font-size="16">${t.open?(t.full?'in':'—'):'?'}</text></g>`;
   });
-  $('sc').innerHTML=sky()+hills()+`<rect y="400" width="1000" height="220" fill="#2b5530"/>`+boxes+rylee(80,430)+friend(170,408);
+  $('sc').innerHTML=sky()+hills()+`<rect y="400" width="1000" height="220" fill="#2b5530"/>`+boxes+(open===12?strip(12,5):'')+rylee(80,430)+friend(170,408);
   if(open===12){
-    helpTxt='12 traps. 5 empty. 12 = 5 + n. n is the animals.';
+    helpTxt='See the strip. Whole is 12. Red piece is 5 empty. n is the rest.';
     picks([
       {t:'7 to the shelter',ok:1},
       {t:'12 to the shelter',hint:'Five were empty. Do not count those.'},
