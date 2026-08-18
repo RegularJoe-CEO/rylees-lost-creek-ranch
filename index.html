@@ -55,7 +55,7 @@ function tree(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})">
 function rylee(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="78" rx="20" ry="7" fill="#0003"/><rect x="-10" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="3" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="-16" y="24" width="32" height="32" rx="7" fill="#3f7a46"/><circle cy="8" r="15" fill="#f0c49a"/><path d="M-15 4 C-16 -14 16 -14 15 4 C8 -6 -8 -6 -15 4" fill="#5a3218"/><circle cx="-5" cy="8" r="2" fill="#2a1c10"/><circle cx="5" cy="8" r="2" fill="#2a1c10"/></g>`}
 function friend(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="102" rx="28" ry="9" fill="#0003"/><rect x="-18" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="4" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="-26" y="28" width="52" height="46" rx="8" fill="#8b3a22"/><rect x="-26" y="44" width="52" height="6" fill="#d9c08a"/><circle cy="6" r="19" fill="#f0c49a"/><path d="M-18 2 C-20 -16 20 -16 18 2" fill="#5c2e16"/><path d="M-17 10 C-18 34 18 34 17 10 C10 22 -10 22 -17 10" fill="#8a3d22"/><circle cx="-6" cy="4" r="2" fill="#2a1c10"/><circle cx="6" cy="4" r="2" fill="#2a1c10"/></g>`}
 function mama(x,y){return `<g transform="translate(${x} ${y})"><path d="M-14 28 C-16 70 -8 76 0 76 C8 76 16 70 14 28Z" fill="#c45c6a"/><circle cy="10" r="13" fill="#f0c49a"/><path d="M-14 4 C-18 14 -16 36 -6 32 C-2 14 2 14 6 32 C16 36 18 14 14 4 C8 -12 -8 -12 -14 4Z" fill="#4a2c18"/></g>`}
-function grandma(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
+function nana(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
 function bass(x,y,s,hit){
   const sc=s||1;
   return `<g transform="translate(${x} ${y}) scale(${sc})">
@@ -334,21 +334,24 @@ function checkTrap(i){
 }
 function grandma(){
   scene='grandma'; phase='g';
-  $('where').textContent='Grandma';
-  helpTxt='Click the creek. Each click skips the rock once. Three hops wins.';
-  hint('Skip a rock — click the creek');
+  $('where').textContent="Grandma's creek";
+  helpTxt='This is Grandma. Click the water three times to skip a rock.';
+  hint('Click the creek to skip a rock');
   window._sk=0;
   $('sc').innerHTML=sky(1)+hills()+
     `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>
-     <text x="280" y="420" fill="#fff" font-size="22" font-weight="800">click the creek</text>`
-    +house()+grandma(200,300)+rylee(90,360)+friend(280,340);
+     <text x="420" y="80" text-anchor="middle" font-size="28" font-weight="800">You made it to Grandma</text>
+     <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek</text>
+     <text x="280" y="460" fill="#fff" font-size="18">click the water</text>`
+    +house()+nana(200,300)+rylee(90,360)+friend(280,340);
 }
 function skip(){
   window._sk=(window._sk||0)+1;
   const n=window._sk;
   $('sc').innerHTML=sky(1)+hills()+
-    `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>`
-    +ripples(Math.min(n,3))+house()+grandma(200,300)+rylee(90,360)+friend(280,340);
+    `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>
+     <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek</text>`
+    +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340);
   if(n<3) hint(n===1?'One hop. Click the creek again.':'Two hops. One more.');
   else { ST.stars+=2;save();stars(); hint('Three hops. That is a good skip.'); setTimeout(()=>go('ranch'),1100); }
 }
