@@ -8,17 +8,19 @@
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#0d1f18;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
-#app{height:100dvh;width:100%;position:relative;overflow:hidden;background:#143028}
-svg{width:100%;height:100%;display:block;cursor:default}
+#app{height:100dvh;width:100%;display:flex;flex-direction:column;overflow:hidden;background:#143028;position:relative}
+svg{flex:1;min-height:0;width:100%;display:block;cursor:default}
 [data-act]{cursor:pointer}
-.hud{position:absolute;top:calc(8px + env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:8px;z-index:5;align-items:center;pointer-events:none}
-.hud b,.hud button{pointer-events:auto;border:0;border-radius:999px;padding:10px 14px;font:800 14px/1 -apple-system,sans-serif;background:#fff;box-shadow:0 6px 16px #0003}
+.hud{flex:0 0 auto;display:flex;gap:8px;align-items:center;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));z-index:5}
+.hud b,.hud button{border:0;border-radius:999px;padding:10px 14px;font:800 14px/1 -apple-system,sans-serif;background:#fff;box-shadow:0 6px 16px #0003}
 .hud .grow{flex:1;text-align:center;background:#fffc}
-.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font:700 16px/1.2 -apple-system,sans-serif;pointer-events:none;max-width:90%;text-align:center}
+.hint{flex:0 0 auto;margin:0 auto 10px;background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font:700 16px/1.2 -apple-system,sans-serif;max-width:90%;text-align:center}
 #app.has-picks .hint{display:none}
-.help{position:absolute;z-index:7;max-width:280px;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px #0004;font:500 15px/1.35 -apple-system,sans-serif}
+.help{position:absolute;z-index:7;max-width:280px;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px #0004;font:500 15px/1.35 -apple-system,sans-serif;top:70px;left:16px}
 .help strong{display:block;color:#8b3a22;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.pickrow{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.dock{flex:0 0 auto;background:#0b1a14;padding:12px 12px calc(14px + env(safe-area-inset-bottom));border-top:2px solid #2a4a3a}
+.q{color:#fff;font:800 20px/1.25 -apple-system,sans-serif;text-align:center;margin:0 0 10px}
+.pickrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .pickrow button{border:0;border-radius:14px;padding:14px 16px;font:800 16px -apple-system,sans-serif;background:#fff;box-shadow:0 8px 18px #0003}
 .pickrow button.ok{background:#b7e38a}
 .pickrow button.no{background:#f5b8ae}
@@ -38,7 +40,10 @@ svg{width:100%;height:100%;display:block;cursor:default}
   <svg id="sc" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
   <div id="hint" class="hint"></div>
   <div id="help" class="help hide"></div>
-  <div id="picks" class="pickrow hide"></div>
+  <div id="dock" class="dock hide">
+    <div id="q" class="q"></div>
+    <div id="picks" class="pickrow"></div>
+  </div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -134,16 +139,17 @@ function ask(){
   else h.classList.add('hide');
 }
 function hideHelp(){$('help').classList.add('hide')}
-function picks(opts,onOk){
+function picks(question,opts,onOk){
   $('app').classList.add('has-picks');
-  $('picks').classList.remove('hide');
+  $('dock').classList.remove('hide');
+  $('q').textContent=question;
   $('picks').innerHTML=opts.map((o,i)=>`<button id="p${i}">${o.t}</button>`).join('');
   opts.forEach((o,i)=>$(`p${i}`).onclick=()=>{
-    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{ $('app').classList.remove('has-picks');$('picks').classList.add('hide'); onOk(); },400)}
+    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{ clearUI(); onOk(); },400)}
     else {$(`p${i}`).className='no'; helpTxt=o.hint; ask()}
   });
 }
-function clearUI(){$('app').classList.remove('has-picks');$('picks').classList.add('hide');$('picks').innerHTML='';hideHelp()}
+function clearUI(){$('app').classList.remove('has-picks');$('dock').classList.add('hide');$('q').textContent='';$('picks').innerHTML='';hideHelp()}
 function bind(){
   $('sc').onclick=e=>{
     const t=e.target.closest('[data-act]');
@@ -248,7 +254,7 @@ function weigh(){
     +bass(300,230,.7)+bass(500,230,.7)+bass(700,230,.7)+
     tags(308,195,280,'')+tags(318,395,280,'')+tags(381,595,280,'')
     +rylee(80,400)+friend(160,378);
-  picks([
+  picks('Lightest to heaviest?',[
     {t:'308, 318, 381',ok:1},
     {t:'318, 308, 381',hint:'308 has 0 tens. That is the lightest.'},
     {t:'381, 318, 308',hint:'That is heaviest first. We want lightest first.'}
@@ -274,7 +280,7 @@ function shoot(){
      <text x="360" y="90" font-size="28" font-weight="800">Round 47 to the nearest ten</text>
      <text x="360" y="122" font-size="18">gold mark on the fence post = 47 yards</text>`
     +post(47)+rylee(140,400)+friend(240,378);
-  picks([
+  picks('Round 47 to the nearest ten',[
     {t:'50 yards',ok:1},
     {t:'40 yards',hint:'45 is the middle mark. 47 is above it, so up to 50.'},
     {t:'47 yards',hint:'Rounding picks a friendly ten. Look at the post.'}
@@ -307,7 +313,7 @@ function drawTraps(){
     +(open===12?(`<text x="500" y="130" text-anchor="middle" font-size="26" font-weight="800">How many animals go in the truck?</text>`+strip(12,5)):'');
   if(open===12){
     helpTxt='12 cages. 5 empty. Empty stay. Animals ride in the orange Jacksboro shelter truck.';
-    picks([
+    picks('How many animals go in the truck?',[
       {t:'7 animals in the truck',ok:1},
       {t:'12 animals in the truck',hint:'Five cages were empty. Empty cages do not go.'},
       {t:'5 animals in the truck',hint:'5 were empty. The full cages are the animals.'}
