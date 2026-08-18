@@ -1,17 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Lost Creek Ranch" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#2c4a3e" />
-  <title>Rylee's Lost Creek Ranch</title>
-</head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Lost Creek Ranch"/>
+<title>Lost Creek Ranch</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#143028;font-family:Georgia,serif}
+#app{position:relative;height:100dvh;max-width:480px;margin:0 auto;overflow:hidden}
+svg{display:block;width:100%;height:100%}
+.hud{position:absolute;top:calc(8px + env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;z-index:5}
+.hud b{background:#fff8ecdd;border-radius:20px;padding:6px 12px;font-size:14px}
+.bubble{position:absolute;left:14px;right:14px;bottom:calc(88px + env(safe-area-inset-bottom));background:#fff8ec;border:3px solid #3b2a18;border-radius:18px;padding:12px 14px;z-index:6}
+.bubble strong{display:block;font-size:13px;color:#8a4b12;margin-bottom:4px}
+.acts{position:absolute;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;display:flex;gap:8px}
+.btn{flex:1;border:0;border-radius:16px;padding:14px 10px;font:800 16px/1.1 -apple-system,sans-serif;background:#d4a017;color:#2a1c00}
+.btn.pine{background:#2c4a3e;color:#f6efe0}
+.btn.ghost{background:#fff8ec;color:#2a2318}
+.choice{display:flex;flex-direction:column;gap:8px;position:absolute;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7}
+.pick{border:3px solid #3b2a18;border-radius:16px;background:#fff8ec;padding:12px;font:800 18px/1.2 -apple-system,sans-serif;text-align:left}
+.pick.ok{background:#c8e8a8}.pick.no{background:#f3c0b4}
+.hide{display:none!important}
+.bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.splash{animation:spl .7s ease-out}
+@keyframes spl{0%{transform:scale(.4);opacity:0}40%{opacity:1}100%{opacity:0}}
+.jump{animation:jp .8s ease}
+@keyframes jp{0%{transform:translate(0,40px)}40%{transform:translate(10px,-30px)}100%{transform:translate(20px,10px)}}
+</style></head>
 <body>
-<p>Loading game… if you see this, the full file is still uploading.</p>
-<script>location.replace('./game.html');</script>
-</body>
-</html>
+<div id="app">
+<div class="hud"><b id="where">Lost Creek Ranch</b><b id="stars">* 0</b></div>
+<svg id="sc" viewBox="0 0 360 640" preserveAspectRatio="xMidYSlice"></svg>
+<div id="talk" class="bubble hide"></div>
+<div id="acts" class="acts"></div>
+<div id="choice" class="choice hide"></div>
+</div>
+<script src="game.js"></script>
+</body></html>
