@@ -118,26 +118,33 @@ function hint(t){$('hint').textContent=t||'';$('hint').classList.toggle('hide',!
 function ask(){const h=$('help');if(h.classList.contains('hide')){h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+(helpTxt||'Click the glowing thing.');h.style.left='60px';h.style.top='70px'}else h.classList.add('hide')}
 function hideHelp(){$('help').classList.add('hide')}
 function clearUI(){$('app').classList.remove('has-picks');$('dock').classList.add('hide');$('q').textContent='';$('picks').innerHTML='';hideHelp()}
-function picks(question,opts,onOk){
+function showFriend(msg){
+  helpTxt=msg;
+  const h=$('help');
+  h.classList.remove('hide');
+  h.innerHTML='<strong>Friend</strong>'+msg;
+}
+function picks(question,opts){
   $('app').classList.add('has-picks');
   $('dock').classList.remove('hide');
   $('q').textContent=question;
-  $('picks').innerHTML=opts.map((o,i)=>`<button id="p${i}">${o.t}</button>`).join('');
-  opts.forEach((o,i)=>$(`p${i}`).onclick=()=>{
-    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{clearUI();onOk()},350)}
-    else{$(`p${i}`).className='no';helpTxt=o.hint||'Try the other one.';ask()}
-  });
+  $('picks').innerHTML=opts.map((o,i)=>`<button id="b${i}">${o.t}</button>`).join('');
+  opts.forEach((o,i)=>{const btn=$(`b${i}`);if(!btn)return;btn.onclick=()=>choose(o,btn)});
 }
-function nextBtn(label,fn){
-  $('app').classList.add('has-picks');
-  $('dock').classList.remove('hide');
-  $('q').textContent=label;
-  $('picks').innerHTML='<button id="p0" class="ok">Next</button>';
-  $('p0').onclick=()=>{clearUI();fn()};
+function choose(o,btn){
+  if(o.ok){
+    if(btn)btn.className='ok';
+    hideHelp();
+    ST.stars++;save();stars();
+    setTimeout(advance,400);
+  } else {
+    if(btn)btn.className='no';
+    showFriend(o.hint||'Nope. That is the lighter one.');
+  }
 }
 function bind(){$('sc').onclick=e=>{const t=e.target.closest('[data-act]');if(t)act(t.getAttribute('data-act'))}}
 function go(name){
-  scene=name;phase='idle';bank=[];qi=0;afterDraw=null;clearUI();
+  scene=name;phase='idle';qi=0;clearUI();hideHelp();
   if(name==='ranch')ranch();
   else if(name==='fish')fish();
   else if(name==='range')range();
@@ -145,33 +152,28 @@ function go(name){
   else if(name==='grandma')seeGrandma();
 }
 function act(a){
-  hideHelp();
   if(a==='hole')go('fish');
   else if(a==='range')go('range');
   else if(a==='trap')go('trap');
   else if(a==='cast')cast();
   else if(a==='reel')askQ();
-  else if(a==='shoot')askQ();
+  else if(a==='shoot'){if(qi===0&&!document.getElementById('b0'))askQ()}
+  else if(a==='f0'||a==='f1'){const item=bank[qi];if(item&&item.opts)choose(item.opts[+a[1]])}
   else if(a.startsWith('trap'))checkTrap(+a.slice(4));
   else if(a==='skip')skip();
 }
-function right(){
+function advance(){
   qi++;
-  if(qi<bank.length){
-    nextBtn('Got it. Question '+(qi+1)+' of '+bank.length, ()=>{
-      if(afterDraw)afterDraw(bank[qi]);
-      askQ();
-    });
-  } else {
-    nextBtn('Level done. Go see Grandma', seeGrandma);
-  }
+  clearUI();
+  if(qi<bank.length) askQ();
+  else seeGrandma();
 }
 function askQ(){
   const item=bank[qi];
-  if(!item)return;
+  if(!item){seeGrandma();return}
   helpTxt=item.h;
   if(afterDraw)afterDraw(item);
-  picks(item.q+'  ('+(qi+1)+' of '+bank.length+')', item.opts, right);
+  picks(item.q+'  ('+(qi+1)+' of '+bank.length+')', item.opts);
 }
 function ranch(){
   $('where').textContent='Lost Creek Ranch';
@@ -199,17 +201,17 @@ function ranch(){
 }
 const FISH = [
   {a:285,b:264,q:'Which bass is heavier?',h:'Same hundreds. Look at the tens. 8 tens beat 6 tens.',opts:[
-    {t:'Rylee 285',ok:1},{t:'Friend 264',hint:'8 tens is more than 6 tens.'},{t:'They weigh the same',hint:'The tens are different.'}]},
+    {t:'Rylee 285',ok:1},{t:'Friend 264',hint:'Nope. 8 tens is more than 6 tens. Tap the heavier bass.'},{t:'They weigh the same',hint:'The tens are different.'}]},
   {a:418,b:481,q:'Which bass is heavier?',h:'Same hundreds. 1 ten vs 8 tens.',opts:[
-    {t:'Rylee 418',hint:'Look at the tens. 1 ten is less than 8 tens.'},{t:'Friend 481',ok:1},{t:'They weigh the same',hint:'The tens are different.'}]},
+    {t:'Rylee 418',hint:'Nope. That is the lighter one. 1 ten is less than 8 tens.'},{t:'Friend 481',ok:1},{t:'They weigh the same',hint:'The tens are different.'}]},
   {a:702,b:720,q:'Which bass is heavier?',h:'Same hundreds. 0 tens vs 2 tens.',opts:[
-    {t:'Rylee 702',hint:'0 tens is less than 2 tens.'},{t:'Friend 720',ok:1},{t:'They weigh the same',hint:'Look at the tens place.'}]}
+    {t:'Rylee 702',hint:'Nope. That is the lighter one. 0 tens is less than 2 tens.'},{t:'Friend 720',ok:1},{t:'They weigh the same',hint:'Look at the tens place.'}]}
 ];
 function fish(){
   $('where').textContent='The Hole';
   bank=FISH; qi=0;
   afterDraw=drawFishQ;
-  helpTxt='Click the lake to cast. Catch a bass, then answer.';
+  helpTxt='Click the lake to cast. Catch a bass, then tap the heavier one.';
   hint('Click the lake to cast');
   $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+
     `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="cast"/>
@@ -219,10 +221,11 @@ function fish(){
 }
 function drawFishQ(item){
   $('sc').innerHTML=sky()+hills()+
-    `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
-    +rylee(80,230)+friend(170,208)
-    +bass(380,180,1.05)+tags(item.a,275,230,'Rylee '+item.a)
-    +bass(720,200,.95)+tags(item.b,615,250,'Friend '+item.b);
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
+     <text x="500" y="70" text-anchor="middle" font-size="22" font-weight="800">Tap the heavier bass</text>`
+    +rylee(80,230)+friend(170,208)+
+    `<g data-act="f0">${bass(380,180,1.05)}${tags(item.a,275,230,'Rylee '+item.a)}</g>
+     <g data-act="f1">${bass(720,200,.95)}${tags(item.b,615,250,'Friend '+item.b)}</g>`;
 }
 function cast(){
   hint('Wait for it...');
@@ -244,17 +247,17 @@ function cast(){
 }
 const RANGE = [
   {n:47,q:'Round 47 to the nearest ten',h:'Gold mark is 47. It already passed the middle 45, so up to 50.',opts:[
-    {t:'50 yards',ok:1},{t:'40 yards',hint:'45 is the middle. 47 is above it.'},{t:'47 yards',hint:'Rounding picks a friendly ten.'}]},
+    {t:'50 yards',ok:1},{t:'40 yards',hint:'Nope. 45 is the middle. 47 is above it, so 50.'},{t:'47 yards',hint:'Rounding picks a friendly ten.'}]},
   {n:42,q:'Round 42 to the nearest ten',h:'42 is below the middle mark 45, so it goes down to 40.',opts:[
-    {t:'40 yards',ok:1},{t:'50 yards',hint:'42 is under 45. That is closer to 40.'},{t:'42 yards',hint:'We want the nearest ten.'}]},
+    {t:'40 yards',ok:1},{t:'50 yards',hint:'Nope. 42 is under 45. That is closer to 40.'},{t:'42 yards',hint:'We want the nearest ten.'}]},
   {n:45,q:'Round 45 to the nearest ten',h:'45 is the middle mark between 40 and 50. Middle goes up.',opts:[
-    {t:'40 yards',hint:'When it is right in the middle, we round up to 50.'},{t:'50 yards',ok:1},{t:'45 yards',hint:'Middle of 40 and 50 goes up to 50.'}]}
+    {t:'40 yards',hint:'Nope. When it is right in the middle, we round up to 50.'},{t:'50 yards',ok:1},{t:'45 yards',hint:'Middle of 40 and 50 goes up to 50.'}]}
 ];
 function range(){
   $('where').textContent='The Range';
   bank=RANGE; qi=0;
   afterDraw=drawRangeQ;
-  helpTxt='Click a can. Then you get 3 rounding questions on the fence post.';
+  helpTxt='Click a can. Then 3 rounding questions on the fence post.';
   hint('Click a can on the rail');
   $('sc').innerHTML=sky(1)+
     `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
@@ -274,11 +277,11 @@ function drawRangeQ(item){
 }
 const TRAPQ = [
   {q:'How many animals go in the shelter truck?',h:'12 cages. 5 were empty. 12 - 5 = 7 ride in the truck.',opts:[
-    {t:'7 animals',ok:1},{t:'12 animals',hint:'Empty cages stay. Only full cages go.'},{t:'5 animals',hint:'5 were empty. The others go.'}]},
+    {t:'7 animals',ok:1},{t:'12 animals',hint:'Nope. Empty cages stay. Only full cages go.'},{t:'5 animals',hint:'Nope. 5 were empty. The others go.'}]},
   {q:'How many cages were empty?',h:'You opened 12. 7 had an animal. 12 - 7 = 5 empty.',opts:[
-    {t:'5 empty',ok:1},{t:'7 empty',hint:'7 had animals. Empty is the other part.'},{t:'12 empty',hint:'Some cages had animals in them.'}]},
+    {t:'5 empty',ok:1},{t:'7 empty',hint:'Nope. 7 had animals. Empty is the other part.'},{t:'12 empty',hint:'Some cages had animals in them.'}]},
   {q:'12 cages - 5 empty = ?',h:'The strip shows 5 empty. What is left is the animals.',opts:[
-    {t:'7',ok:1},{t:'17',hint:'This is take-away, not add.'},{t:'5',hint:'5 is the empty part. We want what is left.'}]}
+    {t:'7',ok:1},{t:'17',hint:'Nope. This is take-away, not add.'},{t:'5',hint:'5 is the empty part. We want what is left.'}]}
 ];
 let traps;
 function trap(){
@@ -286,12 +289,12 @@ function trap(){
   bank=TRAPQ; qi=0;
   afterDraw=drawTrapQ;
   traps=Array(12).fill(0).map((_,i)=>({open:0,full:i>4}));
-  helpTxt='Click every cage. Then you get 3 questions about the truck.';
+  helpTxt='Click every cage. Then 3 questions about the truck.';
   drawTraps();
 }
 function trapBoxes(){
   let boxes='';
-  traps.forEach((t,i)=>{const col=i<6?i:i-6;boxes+=cage(40+col*115, i<6?170:260, t, i);});
+  traps.forEach((t,i)=>{const col=i<6?i:i-6;boxes+=cage(40+col*115, i<6?170:260, t, i)});
   return boxes;
 }
 function drawTraps(){
@@ -301,7 +304,7 @@ function drawTraps(){
     `<rect y="400" width="1000" height="220" fill="#2b5530"/>
      <text x="40" y="155" font-size="16" font-weight="800">12 humane traps</text>`
     +trapBoxes()+truck()+rylee(40,430)+friend(130,408);
-  if(open===12) askQ();
+  if(open===12 && !$('app').classList.contains('has-picks')) askQ();
 }
 function drawTrapQ(){
   $('sc').innerHTML=sky()+hills()+
@@ -312,6 +315,7 @@ function drawTrapQ(){
 function checkTrap(i){if(!traps[i].open){traps[i].open=1;drawTraps()}}
 function seeGrandma(){
   scene='grandma';
+  clearUI();
   $('where').textContent="Grandma's creek";
   helpTxt='Click the water three times to skip a rock.';
   hint('Click the creek to skip a rock');
