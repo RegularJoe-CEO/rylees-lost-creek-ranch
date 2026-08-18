@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>Lost Creek Ranch</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{margin:0;height:100%;background:#0d1f18;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
 #app{height:100dvh;width:100%;display:flex;flex-direction:column;overflow:hidden;background:#143028;position:relative}
 svg{flex:1;min-height:0;width:100%;display:block;cursor:default}
@@ -21,7 +21,7 @@ svg{flex:1;min-height:0;width:100%;display:block;cursor:default}
 .dock{flex:0 0 auto;background:#0b1a14;padding:12px 12px calc(14px + env(safe-area-inset-bottom));border-top:2px solid #2a4a3a}
 .q{color:#fff;font:800 20px/1.25 -apple-system,sans-serif;text-align:center;margin:0 0 10px}
 .pickrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.pickrow button{border:0;border-radius:14px;padding:14px 16px;font:800 16px -apple-system,sans-serif;background:#fff;box-shadow:0 8px 18px #0003}
+.pickrow button{border:0;border-radius:14px;padding:16px 18px;min-height:48px;min-width:120px;font:800 17px -apple-system,sans-serif;background:#fff;box-shadow:0 8px 18px #0003}
 .pickrow button.ok{background:#b7e38a}
 .pickrow button.no{background:#f5b8ae}
 .hide{display:none!important}
@@ -56,6 +56,7 @@ function tree(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})">
 function rylee(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="78" rx="20" ry="7" fill="#0003"/><rect x="-10" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="3" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="-16" y="24" width="32" height="32" rx="7" fill="#3f7a46"/><circle cy="8" r="15" fill="#f0c49a"/><path d="M-15 4 C-16 -14 16 -14 15 4 C8 -6 -8 -6 -15 4" fill="#5a3218"/><circle cx="-5" cy="8" r="2" fill="#2a1c10"/><circle cx="5" cy="8" r="2" fill="#2a1c10"/></g>`}
 function friend(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="102" rx="28" ry="9" fill="#0003"/><rect x="-18" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="4" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="-26" y="28" width="52" height="46" rx="8" fill="#8b3a22"/><rect x="-26" y="44" width="52" height="6" fill="#d9c08a"/><circle cy="6" r="19" fill="#f0c49a"/><path d="M-18 2 C-20 -16 20 -16 18 2" fill="#5c2e16"/><path d="M-17 10 C-18 34 18 34 17 10 C10 22 -10 22 -17 10" fill="#8a3d22"/><circle cx="-6" cy="4" r="2" fill="#2a1c10"/><circle cx="6" cy="4" r="2" fill="#2a1c10"/></g>`}
 function mama(x,y){return `<g transform="translate(${x} ${y})"><path d="M-14 28 C-16 70 -8 76 0 76 C8 76 16 70 14 28Z" fill="#c45c6a"/><circle cy="10" r="13" fill="#f0c49a"/><path d="M-14 4 C-18 14 -16 36 -6 32 C-2 14 2 14 6 32 C16 36 18 14 14 4 C8 -12 -8 -12 -14 4Z" fill="#4a2c18"/></g>`}
+function elvis(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="44" rx="10" ry="4" fill="#0003"/><rect x="-8" y="22" width="16" height="20" rx="5" fill="#5a7a9a"/><circle cy="10" r="10" fill="#f0c49a"/><path d="M-8 8 C-9 -5 9 -5 8 8" fill="#5a3218"/></g>`}
 function nana(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
 function bass(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})"><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g>`}
 function bassHit(x,y){return `<g transform="translate(${x} ${y}) scale(1.4)"><circle r="70" fill="#0000" pointer-events="all"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -10;0 0" dur="1.6s" repeatCount="indefinite"/><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g></g>`}
@@ -118,12 +119,7 @@ function hint(t){$('hint').textContent=t||'';$('hint').classList.toggle('hide',!
 function ask(){const h=$('help');if(h.classList.contains('hide')){h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+(helpTxt||'Click the glowing thing.');h.style.left='60px';h.style.top='70px'}else h.classList.add('hide')}
 function hideHelp(){$('help').classList.add('hide')}
 function clearUI(){$('app').classList.remove('has-picks');$('dock').classList.add('hide');$('q').textContent='';$('picks').innerHTML='';hideHelp()}
-function showFriend(msg){
-  helpTxt=msg;
-  const h=$('help');
-  h.classList.remove('hide');
-  h.innerHTML='<strong>Friend</strong>'+msg;
-}
+function showFriend(msg){helpTxt=msg;const h=$('help');h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+msg}
 function picks(question,opts){
   $('app').classList.add('has-picks');
   $('dock').classList.remove('hide');
@@ -131,20 +127,23 @@ function picks(question,opts){
   $('picks').innerHTML=opts.map((o,i)=>`<button id="b${i}">${o.t}</button>`).join('');
   opts.forEach((o,i)=>{const btn=$(`b${i}`);if(!btn)return;btn.onclick=()=>choose(o,btn)});
 }
+let locked=false;
 function choose(o,btn){
+  if(locked)return;
   if(o.ok){
+    locked=true;
     if(btn)btn.className='ok';
     hideHelp();
     ST.stars++;save();stars();
-    setTimeout(advance,400);
+    setTimeout(advance,450);
   } else {
     if(btn)btn.className='no';
-    showFriend(o.hint||'Nope. That is the lighter one.');
+    showFriend(o.hint||'Nope. That is the lighter one. Try the other bass.');
   }
 }
 function bind(){$('sc').onclick=e=>{const t=e.target.closest('[data-act]');if(t)act(t.getAttribute('data-act'))}}
 function go(name){
-  scene=name;phase='idle';qi=0;clearUI();hideHelp();
+  scene=name;phase='idle';qi=0;locked=false;clearUI();hideHelp();
   if(name==='ranch')ranch();
   else if(name==='fish')fish();
   else if(name==='range')range();
@@ -171,6 +170,7 @@ function advance(){
 function askQ(){
   const item=bank[qi];
   if(!item){seeGrandma();return}
+  locked=false;
   helpTxt=item.h;
   if(afterDraw)afterDraw(item);
   picks(item.q+'  ('+(qi+1)+' of '+bank.length+')', item.opts);
@@ -178,7 +178,7 @@ function askQ(){
 function ranch(){
   $('where').textContent='Lost Creek Ranch';
   helpTxt='Lake, range, or trapline. Each one is a whole level.';
-  hint('Pick a level');
+  hint('Hey bud — pick a place');
   $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+tree(940,230,.9)+
     `<g data-act="hole">
        <ellipse cx="200" cy="470" rx="170" ry="78" fill="url(#w)" stroke="#ffe27a" stroke-width="4"/>
@@ -197,11 +197,11 @@ function ranch(){
        <text x="810" y="452" text-anchor="middle" fill="#fff" font-size="13">3 count questions</text>
      </g>`
     +tin(455,448)+tin(515,448)+tin(575,448)
-    +rylee(360,300)+friend(470,278)+mama(580,308);
+    +rylee(360,300)+friend(470,278)+mama(580,308)+elvis(640,360);
 }
 const FISH = [
   {a:285,b:264,q:'Which bass is heavier?',h:'Same hundreds. Look at the tens. 8 tens beat 6 tens.',opts:[
-    {t:'Rylee 285',ok:1},{t:'Friend 264',hint:'Nope. 8 tens is more than 6 tens. Tap the heavier bass.'},{t:'They weigh the same',hint:'The tens are different.'}]},
+    {t:'Rylee 285',ok:1},{t:'Friend 264',hint:'Nope. That is the lighter one. 8 tens beat 6 tens.'},{t:'They weigh the same',hint:'The tens are different.'}]},
   {a:418,b:481,q:'Which bass is heavier?',h:'Same hundreds. 1 ten vs 8 tens.',opts:[
     {t:'Rylee 418',hint:'Nope. That is the lighter one. 1 ten is less than 8 tens.'},{t:'Friend 481',ok:1},{t:'They weigh the same',hint:'The tens are different.'}]},
   {a:702,b:720,q:'Which bass is heavier?',h:'Same hundreds. 0 tens vs 2 tens.',opts:[
@@ -236,6 +236,7 @@ function cast(){
      <text x="640" y="390" text-anchor="middle" fill="#fff" font-size="22" font-weight="800">waiting on a bite</text>`
     +rylee(110,280)+pole(125,278)+friend(220,258);
   setTimeout(()=>{
+    if(scene!=='fish')return;
     hint('FISH ON — click the bass');
     $('sc').innerHTML=sky()+hills()+
       `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="reel"/>
@@ -322,10 +323,10 @@ function seeGrandma(){
   window._sk=0;
   $('sc').innerHTML=sky(1)+hills()+
     `<rect y="380" width="1000" height="240" fill="url(#w)"/>
-     <text x="420" y="80" text-anchor="middle" font-size="28" font-weight="800">You made it to Grandma</text>
+     <text x="420" y="80" text-anchor="middle" font-size="28" font-weight="800">Rylee! You did it</text>
      <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek</text>
      <text x="280" y="460" fill="#fff" font-size="18">skip 3 times</text>`
-    +house()+nana(200,300)+rylee(90,360)+friend(280,340)+
+    +house()+nana(200,300)+rylee(90,360)+friend(280,340)+elvis(160,380)+
     `<rect y="380" width="1000" height="240" fill="#0000" data-act="skip"/>`;
 }
 function skip(){
@@ -335,7 +336,7 @@ function skip(){
   $('sc').innerHTML=sky(1)+hills()+
     `<rect y="380" width="1000" height="240" fill="url(#w)"/>
      <text x="280" y="430" fill="#fff" font-size="26" font-weight="800">Lost Creek · ${Math.min(n,3)} / 3</text>`
-    +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340)+
+    +ripples(Math.min(n,3))+house()+nana(200,300)+rylee(90,360)+friend(280,340)+elvis(160,380)+
     `<rect y="380" width="1000" height="240" fill="#0000" data-act="skip"/>`;
   if(n>=3){ST.stars+=2;save();stars();setTimeout(()=>go('ranch'),1100)}
 }
