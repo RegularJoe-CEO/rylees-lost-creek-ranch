@@ -4,54 +4,235 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="Lost Creek Ranch"/>
 <title>Lost Creek Ranch</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#10261c;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#1c1916}
-#app{position:relative;height:100dvh;max-width:430px;margin:0 auto;overflow:hidden;background:#6eb7c8}
-svg{display:block;width:100%;height:100%}
-.nav{position:absolute;top:calc(6px + env(safe-area-inset-top));left:10px;right:10px;z-index:8;display:flex;gap:8px;align-items:center}
-.nav button,.chip{border:0;border-radius:999px;padding:10px 14px;font:700 14px/1 -apple-system,sans-serif;background:#fff;color:#1c1916;box-shadow:0 6px 16px #0002}
-.nav .grow{flex:1;text-align:center;background:#fffc;backdrop-filter:blur(8px)}
-.chip.gold{background:#f3c14a}
-.speech{position:absolute;z-index:6;width:min(230px,62%);transform:translate(-50%,-100%);background:#fff;border-radius:18px 18px 18px 6px;padding:10px 12px 12px;box-shadow:0 10px 24px #0004;font:500 15px/1.35 -apple-system,sans-serif;animation:pop .18s ease-out}
-.speech strong{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.speech.friend strong{color:#8b3a22}
-.speech.mama strong{color:#c45c6a}
-.speech.grandma strong{color:#7a4aa0}
-.speech.rylee strong{color:#3f7a46}
-.speech:after{content:"";position:absolute;left:22px;bottom:-10px;border:10px solid transparent;border-top-color:#fff;border-bottom:0}
-.speech.friend:after{left:auto;right:28px}
-.acts{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:7;display:flex;gap:8px}
-.btn{flex:1;border:0;border-radius:16px;padding:15px 10px;font:800 16px/1.1 -apple-system,sans-serif;background:#f3c14a;color:#1c1400}
-.btn.pine{background:#1f4a3a;color:#fff}
-.btn.ghost{background:#fff;color:#1c1916}
-.choice{display:flex;flex-direction:column;gap:8px;position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:7}
-.pick{border:0;border-radius:16px;background:#fff;padding:14px;font:750 16px/1.25 -apple-system,sans-serif;text-align:left;box-shadow:0 8px 18px #0002}
-.pick.ok{background:#b7e38a}.pick.no{background:#f5b8ae}
+html,body{margin:0;height:100%;background:#0d1f18;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+#app{height:100dvh;width:100%;position:relative;overflow:hidden;background:#143028}
+svg{width:100%;height:100%;display:block;cursor:default}
+[data-act]{cursor:pointer}
+.hud{position:absolute;top:calc(8px + env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:8px;z-index:5;align-items:center;pointer-events:none}
+.hud b,.hud button{pointer-events:auto;border:0;border-radius:999px;padding:10px 14px;font:800 14px/1 -apple-system,sans-serif;background:#fff;box-shadow:0 6px 16px #0003}
+.hud .grow{flex:1;text-align:center;background:#fffc}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font:700 16px/1.2 -apple-system,sans-serif;pointer-events:none;max-width:90%;text-align:center}
+.help{position:absolute;z-index:7;max-width:280px;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px #0004;font:500 15px/1.35 -apple-system,sans-serif}
+.help strong{display:block;color:#8b3a22;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.pickrow{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pickrow button{border:0;border-radius:14px;padding:14px 16px;font:800 16px -apple-system,sans-serif;background:#fff;box-shadow:0 8px 18px #0003}
+.pickrow button.ok{background:#b7e38a}
+.pickrow button.no{background:#f5b8ae}
 .hide{display:none!important}
-.bob{animation:bob 2.4s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-7px)}}
-@keyframes pop{from{transform:translate(-50%,-90%) scale(.92);opacity:0}to{transform:translate(-50%,-100%) scale(1);opacity:1}}
-.splash{animation:spl .6s ease-out}
-@keyframes spl{from{opacity:.8}to{opacity:0}}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.bob{animation:bob 1.8s ease-in-out infinite}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="nav">
-    <button onclick="back()">Back</button>
-    <div class="chip grow" id="where">Lost Creek Ranch</div>
-    <button class="gold" onclick="ranch()">Ranch</button>
-    <div class="chip" id="stars">0</div>
+  <div class="hud">
+    <button onclick="go('ranch')">Ranch</button>
+    <b class="grow" id="where">Lost Creek Ranch</b>
+    <button onclick="ask()">?</button>
+    <b id="stars">0</b>
   </div>
-  <svg id="sc" viewBox="0 0 360 640" preserveAspectRatio="xMidYSlice"></svg>
-  <div id="talk" class="speech hide"></div>
-  <div id="acts" class="acts"></div>
-  <div id="choice" class="choice hide"></div>
+  <svg id="sc" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
+  <div id="hint" class="hint"></div>
+  <div id="help" class="help hide"></div>
+  <div id="picks" class="pickrow hide"></div>
 </div>
-<script src="art.js"></script>
-<script src="story.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const ST=JSON.parse(localStorage.getItem('lcr4')||'{"stars":0}');
+const save=()=>localStorage.setItem('lcr4',JSON.stringify(ST));
+const stars=()=>$('stars').textContent=ST.stars;
+let scene='ranch', helpTxt='', phase='idle';
+function sky(d){return `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${d?'#e88948':'#74c3d8'}"/><stop offset="1" stop-color="${d?'#f3d7a0':'#cfe89a'}"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8a96"/><stop offset="1" stop-color="#163e48"/></linearGradient></defs><rect width="1000" height="620" fill="url(#sky)"/><circle cx="860" cy="70" r="44" fill="${d?'#ffd08a':'#ffe27a'}"/>`}
+function hills(){return `<path d="M0 260 C160 200 280 240 420 190 C580 130 720 210 1000 170 L1000 420 L0 420Z" fill="#3a6e3c"/><path d="M0 320 C200 260 380 310 560 270 C740 230 880 300 1000 270 L1000 440 L0 440Z" fill="#2b5530"/>`}
+function tree(x,y,s){return `<g transform="translate(${x} ${y}) scale(${s||1})"><rect x="-7" y="30" width="14" height="50" rx="2" fill="#6a4224"/><ellipse cy="10" rx="36" ry="42" fill="#2f6d38"/><ellipse cx="-16" cy="-8" rx="20" ry="22" fill="#3f8a46"/></g>`}
+function rylee(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="78" rx="20" ry="7" fill="#0003"/><rect x="-10" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="3" y="52" width="9" height="24" rx="2" fill="#2d3d55"/><rect x="-16" y="24" width="32" height="32" rx="7" fill="#3f7a46"/><circle cy="8" r="15" fill="#f0c49a"/><path d="M-15 4 C-16 -14 16 -14 15 4 C8 -6 -8 -6 -15 4" fill="#5a3218"/><circle cx="-5" cy="8" r="2" fill="#2a1c10"/><circle cx="5" cy="8" r="2" fill="#2a1c10"/></g>`}
+function friend(x,y){return `<g transform="translate(${x} ${y})"><ellipse cy="102" rx="28" ry="9" fill="#0003"/><rect x="-18" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="4" y="68" width="15" height="32" rx="3" fill="#3d2a1c"/><rect x="-26" y="28" width="52" height="46" rx="8" fill="#8b3a22"/><rect x="-26" y="44" width="52" height="6" fill="#d9c08a"/><circle cy="6" r="19" fill="#f0c49a"/><path d="M-18 2 C-20 -16 20 -16 18 2" fill="#5c2e16"/><path d="M-17 10 C-18 34 18 34 17 10 C10 22 -10 22 -17 10" fill="#8a3d22"/><circle cx="-6" cy="4" r="2" fill="#2a1c10"/><circle cx="6" cy="4" r="2" fill="#2a1c10"/></g>`}
+function mama(x,y){return `<g transform="translate(${x} ${y})"><path d="M-14 28 C-16 70 -8 76 0 76 C8 76 16 70 14 28Z" fill="#c45c6a"/><circle cy="10" r="13" fill="#f0c49a"/><path d="M-14 4 C-18 14 -16 36 -6 32 C-2 14 2 14 6 32 C16 36 18 14 14 4 C8 -12 -8 -12 -14 4Z" fill="#4a2c18"/></g>`}
+function grandma(x,y){return `<g transform="translate(${x} ${y})"><rect x="-18" y="30" width="36" height="40" rx="6" fill="#7a4aa0"/><rect x="-20" y="30" width="40" height="10" fill="#efe6c8"/><circle cy="12" r="14" fill="#f0c49a"/><path d="M-14 8 C-16 -10 16 -10 14 8" fill="#d8d0b8"/></g>`}
+function bass(x,y,s){return `<g class="bob" transform="translate(${x} ${y}) scale(${s||1})"><ellipse rx="54" ry="22" fill="#3f8a3a"/><path d="M48 0 L74 -16 L66 0 L74 16Z" fill="#2f6a2c"/><circle cx="-28" cy="-3" r="4" fill="#e8e0c0"/><circle cx="-28" cy="-3" r="2" fill="#111"/></g>`}
+function hint(t){$('hint').textContent=t||'';$('hint').classList.toggle('hide',!t)}
+function ask(){
+  const h=$('help');
+  if(h.classList.contains('hide')){h.classList.remove('hide');h.innerHTML='<strong>Friend</strong>'+(helpTxt||'Click the glowing thing. That is the next move.');h.style.left='60px';h.style.top='70px'}
+  else h.classList.add('hide');
+}
+function hideHelp(){$('help').classList.add('hide')}
+function picks(opts,onOk){
+  $('picks').classList.remove('hide');
+  $('picks').innerHTML=opts.map((o,i)=>`<button id="p${i}">${o.t}</button>`).join('');
+  opts.forEach((o,i)=>$(`p${i}`).onclick=()=>{
+    if(o.ok){$(`p${i}`).className='ok';ST.stars++;save();stars();setTimeout(()=>{ $('picks').classList.add('hide'); onOk(); },400)}
+    else {$(`p${i}`).className='no'; helpTxt=o.hint; ask()}
+  });
+}
+function clearUI(){$('picks').classList.add('hide');$('picks').innerHTML='';hideHelp()}
+function bind(){
+  $('sc').onclick=e=>{
+    const t=e.target.closest('[data-act]');
+    if(t) act(t.getAttribute('data-act'));
+  };
+}
+function go(name){
+  scene=name;phase='idle';clearUI();
+  if(name==='ranch') ranch();
+  else if(name==='fish') fish();
+  else if(name==='range') range();
+  else if(name==='trap') trap();
+  else if(name==='grandma') grandma();
+}
+function act(a){
+  hideHelp();
+  if(a==='hole') go('fish');
+  else if(a==='range') go('range');
+  else if(a==='trap') go('trap');
+  else if(a==='cast') cast();
+  else if(a==='reel') reel();
+  else if(a==='heavier') weigh();
+  else if(a==='shoot') shoot();
+  else if(a.startsWith('trap')) checkTrap(+a.slice(4));
+  else if(a==='skip') skip();
+}
+function ranch(){
+  $('where').textContent='Lost Creek Ranch';
+  helpTxt='Click the lake, the cans, or the trapline.';
+  hint('Click a place to go');
+  $('sc').innerHTML=sky()+hills()+tree(80,240,.9)+tree(920,250,1)+
+    `<g data-act="hole"><ellipse cx="220" cy="470" rx="180" ry="80" fill="url(#w)" stroke="#ffe27a" stroke-width="4"/>
+     <text x="220" y="476" text-anchor="middle" fill="#fff" font-size="28" font-weight="800">THE HOLE</text></g>
+     <g data-act="range"><rect x="430" y="390" width="200" height="140" rx="16" fill="#c4a46a" stroke="#ffe27a" stroke-width="4"/>
+     <text x="530" y="470" text-anchor="middle" font-size="26" font-weight="800">RANGE</text></g>
+     <g data-act="trap"><rect x="690" y="390" width="220" height="140" rx="16" fill="#2f5530" stroke="#ffe27a" stroke-width="4"/>
+     <text x="800" y="470" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">TRAPLINE</text></g>`
+    +rylee(480,300)+friend(560,278)+mama(640,310);
+}
+function fish(){
+  $('where').textContent='The Hole';
+  helpTxt='Click the water to cast. When the bass jumps, click it.';
+  if(phase==='idle'){
+    hint('Click the water to cast');
+    $('sc').innerHTML=sky()+hills()+tree(40,220,.8)+
+      `<rect y="360" width="1000" height="260" fill="url(#w)" data-act="cast"/>
+       <rect x="0" y="350" width="280" height="22" fill="#8a562c"/>`
+      +rylee(120,300)+friend(210,278)+
+      `<text x="700" y="480" text-anchor="middle" fill="#fff8" font-size="22">click the water</text>`;
+  } else if(phase==='bite'){
+    hint('FISH ON — click the bass');
+    $('sc').innerHTML=sky()+hills()+
+      `<rect y="360" width="1000" height="260" fill="url(#w)"/>
+       <rect x="0" y="350" width="280" height="22" fill="#8a562c"/>`
+      +rylee(120,300)+friend(210,278)+
+      `<g data-act="reel">${bass(640,430,1.3)}</g>`;
+  }
+}
+function cast(){
+  phase='wait';
+  hint('Wait for it...');
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>
+     <rect x="0" y="350" width="280" height="22" fill="#8a562c"/>
+     <circle cx="640" cy="440" r="28" fill="#d5f3f8" opacity=".7"/>`
+    +rylee(120,300)+friend(210,278);
+  setTimeout(()=>{ phase='bite'; fish(); },900);
+}
+function reel(){
+  phase='land';
+  hint('Nice bass. Now tap the heavier fish.');
+  helpTxt='Hundreds are the same. Look at the tens. 8 tens beats 6 tens.';
+  $('sc').innerHTML=sky()+hills()+
+    `<rect y="360" width="1000" height="260" fill="url(#w)"/>`
+    +rylee(80,300)+friend(160,278)+
+    `<g data-act="heavier">${bass(420,280,1.1)}<rect x="360" y="330" width="120" height="44" rx="10" fill="#fff"/><text x="420" y="360" text-anchor="middle" font-size="28" font-weight="800">285</text><text x="420" y="400" text-anchor="middle" font-size="16">Rylee</text></g>
+     <g>${bass(700,300,1)}<rect x="640" y="350" width="120" height="44" rx="10" fill="#fff"/><text x="700" y="380" text-anchor="middle" font-size="28" font-weight="800">264</text><text x="700" y="420" text-anchor="middle" font-size="16">Friend</text></g>`;
+}
+function weigh(){
+  ST.stars++; save(); stars();
+  hint('Yours is heavier. 8 tens beat 6 tens.');
+  helpTxt='Same hundreds. Tens decide. Next cooler: lightest first.';
+  picks([
+    {t:'308, 318, 381',ok:1},
+    {t:'318, 308, 381',hint:'308 has 0 tens. That is the lightest.'},
+    {t:'381, 318, 308',hint:'That is heaviest first. We want lightest first.'}
+  ], grandma);
+}
+function range(){
+  $('where').textContent='The Range';
+  helpTxt='45 is the middle of 40 and 50. Past 45 goes up to 50.';
+  hint('Click a can');
+  $('sc').innerHTML=sky(1)+
+    `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
+     <rect x="200" y="300" width="700" height="18" fill="#6b4423"/>
+     <g data-act="shoot"><circle cx="320" cy="292" r="22" fill="#c45c12"/><circle cx="500" cy="292" r="22" fill="#c45c12"/><circle cx="680" cy="292" r="22" fill="#c45c12"/><circle cx="840" cy="292" r="22" fill="#c45c12"/></g>`
+    +rylee(180,400)+friend(270,378);
+}
+function shoot(){
+  hint('47 yards. Middle is 45. Tap the ten it rounds to.');
+  helpTxt='47 is past 45, so it goes up to 50.';
+  $('sc').innerHTML=sky(1)+
+    `<rect y="360" width="1000" height="260" fill="#c4a46a"/>
+     <line x1="700" y1="80" x2="700" y2="340" stroke="#1c1916" stroke-width="6"/>
+     <text x="720" y="90" font-size="22">50</text>
+     <text x="720" y="220" font-size="22" fill="#c45c12">45</text>
+     <text x="720" y="350" font-size="22">40</text>
+     <circle cx="700" cy="150" r="12" fill="#f3c14a"/>
+     <text x="500" y="160" font-size="36" font-weight="800">47</text>`
+    +rylee(180,400)+friend(270,378);
+  picks([
+    {t:'50',ok:1},
+    {t:'40',hint:'45 is the middle. 47 is past it, so up.'},
+    {t:'47',hint:'Rounding picks a friendly ten.'}
+  ], grandma);
+}
+let traps;
+function trap(){
+  $('where').textContent='The Trapline';
+  traps=Array(12).fill(0).map((_,i)=>({open:0,full:i>4}));
+  helpTxt='Click every trap. Count the full ones. That is how many go to the shelter.';
+  drawTraps();
+}
+function drawTraps(){
+  const open=traps.filter(t=>t.open).length;
+  const full=traps.filter(t=>t.open&&t.full).length;
+  hint(open<12?`Check the traps  (${open}/12)`:`${full} animals. How many ride to the shelter?`);
+  let boxes='';
+  traps.forEach((t,i)=>{
+    const x=60+i*75, col=t.open?(t.full?'#8b3a22':'#d9c08a'):'#3a5a3a';
+    boxes+=`<g data-act="trap${i}"><rect x="${x}" y="280" width="64" height="64" rx="10" fill="${col}" stroke="#fff" stroke-width="2"/><text x="${x+32}" y="318" text-anchor="middle" fill="#fff" font-size="16">${t.open?(t.full?'in':'—'):'?'}</text></g>`;
+  });
+  $('sc').innerHTML=sky()+hills()+`<rect y="400" width="1000" height="220" fill="#2b5530"/>`+boxes+rylee(80,430)+friend(170,408);
+  if(open===12){
+    helpTxt='12 traps. 5 empty. 12 = 5 + n. n is the animals.';
+    picks([
+      {t:'7 to the shelter',ok:1},
+      {t:'12 to the shelter',hint:'Five were empty. Do not count those.'},
+      {t:'5 to the shelter',hint:'5 were empty. The full ones go.'}
+    ], grandma);
+  }
+}
+function checkTrap(i){
+  if(!traps[i].open){traps[i].open=1;drawTraps()}
+}
+function grandma(){
+  scene='grandma'; phase='g';
+  $('where').textContent='Grandma';
+  helpTxt='Click the water three times. Skip a rock.';
+  hint('Skip a rock — click the creek');
+  window._sk=0;
+  $('sc').innerHTML=sky(1)+hills()+
+    `<rect y="380" width="1000" height="240" fill="url(#w)" data-act="skip"/>
+     <rect x="620" y="220" width="280" height="180" fill="#8b5a32"/>`
+    +grandma(200,300)+rylee(120,360)+friend(280,340);
+}
+function skip(){
+  window._sk=(window._sk||0)+1;
+  if(window._sk<3) hint(window._sk===1?'One hop. Click again.':'Two hops. One more.');
+  else { ST.stars+=2;save();stars(); hint('Three hops. That is a good day.'); setTimeout(()=>go('ranch'),900); }
+}
+stars();
+bind();
+go('ranch');
+</script>
 </body>
 </html>
