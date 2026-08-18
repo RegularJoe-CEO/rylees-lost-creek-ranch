@@ -8,26 +8,32 @@
 <title>Lost Creek Ranch</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#0f241c;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#1c1916}
+html,body{margin:0;height:100%;background:#10261c;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#1c1916}
 #app{position:relative;height:100dvh;max-width:430px;margin:0 auto;overflow:hidden;background:#6eb7c8}
 svg{display:block;width:100%;height:100%}
 .nav{position:absolute;top:calc(6px + env(safe-area-inset-top));left:10px;right:10px;z-index:8;display:flex;gap:8px;align-items:center}
 .nav button,.chip{border:0;border-radius:999px;padding:10px 14px;font:700 14px/1 -apple-system,sans-serif;background:#fff;color:#1c1916;box-shadow:0 6px 16px #0002}
-.nav .grow{flex:1;text-align:center;background:#fff9;backdrop-filter:blur(8px)}
+.nav .grow{flex:1;text-align:center;background:#fffc;backdrop-filter:blur(8px)}
 .chip.gold{background:#f3c14a}
-.bubble{position:absolute;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));background:#fff;border-radius:20px;padding:14px 16px;z-index:6;box-shadow:0 12px 30px #0003}
-.bubble strong{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#c45c12;margin-bottom:6px}
+.speech{position:absolute;z-index:6;width:min(230px,62%);transform:translate(-50%,-100%);background:#fff;border-radius:18px 18px 18px 6px;padding:10px 12px 12px;box-shadow:0 10px 24px #0004;font:500 15px/1.35 -apple-system,sans-serif;animation:pop .18s ease-out}
+.speech strong{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.speech.friend strong{color:#8b3a22}
+.speech.mama strong{color:#c45c6a}
+.speech.grandma strong{color:#7a4aa0}
+.speech.rylee strong{color:#3f7a46}
+.speech:after{content:"";position:absolute;left:22px;bottom:-10px;border:10px solid transparent;border-top-color:#fff;border-bottom:0}
+.speech.friend:after{left:auto;right:28px}
 .acts{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:7;display:flex;gap:8px}
 .btn{flex:1;border:0;border-radius:16px;padding:15px 10px;font:800 16px/1.1 -apple-system,sans-serif;background:#f3c14a;color:#1c1400}
 .btn.pine{background:#1f4a3a;color:#fff}
 .btn.ghost{background:#fff;color:#1c1916}
 .choice{display:flex;flex-direction:column;gap:8px;position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:7}
 .pick{border:0;border-radius:16px;background:#fff;padding:14px;font:750 16px/1.25 -apple-system,sans-serif;text-align:left;box-shadow:0 8px 18px #0002}
-.pick.ok{background:#b7e38a}
-.pick.no{background:#f5b8ae}
+.pick.ok{background:#b7e38a}.pick.no{background:#f5b8ae}
 .hide{display:none!important}
-.bob{animation:bob 2.2s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-6px)}}
+.bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-7px)}}
+@keyframes pop{from{transform:translate(-50%,-90%) scale(.92);opacity:0}to{transform:translate(-50%,-100%) scale(1);opacity:1}}
 .splash{animation:spl .6s ease-out}
 @keyframes spl{from{opacity:.8}to{opacity:0}}
 </style>
@@ -41,7 +47,7 @@ svg{display:block;width:100%;height:100%}
     <div class="chip" id="stars">0</div>
   </div>
   <svg id="sc" viewBox="0 0 360 640" preserveAspectRatio="xMidYSlice"></svg>
-  <div id="talk" class="bubble hide"></div>
+  <div id="talk" class="speech hide"></div>
   <div id="acts" class="acts"></div>
   <div id="choice" class="choice hide"></div>
 </div>
