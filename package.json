@@ -1,0 +1,9 @@
+{
+  "name": "rylees-lost-creek-ranch",
+  "version": "6.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "test": "node --test tests/*.test.js"
+  }
+}
