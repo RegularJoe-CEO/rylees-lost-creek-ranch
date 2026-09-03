@@ -1,14 +1,16 @@
 # Rylee's Lost Creek Ranch
 
-Bluebonnet Grade 4 math game. Ranch jobs: fishing, range, humane trapline, ranch ledger.
+Grade 4 math game for Rylee. Ranch jobs: fishing, range, wildlife trail, creek crossing.
 
 ## Play on iPhone or iPad
 
 Open this in **Safari**:
 
-https://raw.githack.com/RegularJoe-CEO/rylees-lost-creek-ranch/main/index.html
+https://regularjoe-ceo.github.io/rylees-lost-creek-ranch/
 
 Then: Share → **Add to Home Screen**.
+
+Use this same address so saved stars stay on the device. Games with Grandma are take-turns on one device, not online multiplayer.
 
 Repo: https://github.com/RegularJoe-CEO/rylees-lost-creek-ranch
 
