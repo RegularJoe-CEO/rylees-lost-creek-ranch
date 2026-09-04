@@ -196,7 +196,7 @@ p{font-size:1.05rem}
 @media(max-width:700px){
  .topbar{height:76px;padding:10px 16px}.brand{font-size:.8rem;gap:8px}.brand-emblem{width:35px;height:43px;font-size:.85rem}.brand-sub{font-size:.65rem}.topbar nav{gap:3px}.nav-button{font-size:.8rem;padding:10px 7px}.topbar nav .nav-button:first-child{display:none}.star-bank{padding:5px 10px;gap:6px;font-size:.85rem}
  #main{min-height:calc(100dvh - 76px)}.world{height:470px}.world-art{object-position:58% center}.world-shade{background:linear-gradient(90deg,#102f29bf,#163e3510),linear-gradient(0deg,#163e3555,transparent 50%)}
- .welcome{top:47px;left:25px;width:calc(100% - 50px)}.welcome h1{font-size:3rem;max-width:300px}.welcome p{max-width:270px}.world-caption{font-size:.75rem;right:18px;bottom:18px}.map-creek{right:10%;bottom:25%;font-size:.6rem}
+ .welcome{top:32px;left:18px;width:calc(100% - 36px)}.welcome h1{font-size:2.35rem;max-width:280px;margin-bottom:12px}.welcome p{max-width:270px;margin-bottom:14px;font-size:.95rem}.welcome .button{min-width:0;margin-right:8px;margin-top:6px}.world{height:520px}.world-caption{font-size:.75rem;right:18px;bottom:18px}.map-creek{right:10%;bottom:25%;font-size:.6rem}
  .trail-section{padding:28px 18px 18px}.section-heading{align-items:start;gap:10px}.section-heading .quiet{display:none}.section-heading h2{font-size:1.7rem}.trail-grid{gap:10px}.trail-card{padding:17px 12px;display:block;min-height:180px}.trail-symbol{width:37px;height:37px;margin-bottom:12px;font-size:1rem}.trail-copy strong{font-size:1.07rem}.trail-copy>span{font-size:.8rem}.trail-copy small{font-size:.65rem}
  .porch-invite{margin:10px 18px 22px;padding:20px 20px 0;gap:13px;align-items:end}.grandma-cutout{width:105px;height:175px}.porch-invite h2{font-size:1.7rem}.porch-invite p{font-size:.9rem}.porch-invite .eyebrow{font-size:.65rem}.porch-stats{display:none}.porch-invite .button{font-size:.8rem;padding:10px;gap:5px}.porch-invite .unlock-note{font-size:.75rem}.map-footer{padding:0 20px 20px;display:block;text-align:center;font-size:.75rem}
  .mission-intro,.celebration,.porch-scene,.stone-game{min-height:calc(100dvh - 76px);padding:210px 18px 25px;align-items:flex-end}.scene-art{object-position:40% center}.intro-panel,.celebration-card,.porch-panel,.stone-panel{max-width:none;width:100%;padding:26px}.intro-panel h1,.porch-panel h1,.stone-panel h1{font-size:2.3rem}
@@ -206,4 +206,41 @@ p{font-size:1.05rem}
  .game-shell{padding:25px 17px}.game-heading{display:block}.game-heading h1{font-size:2.4rem}.game-score{font-size:.85rem}.memory-grid{gap:9px}.memory-card{border-width:2px;border-bottom-width:4px;border-radius:10px;aspect-ratio:.85;font-size:1.8rem}.memory-card.flipped>span,.memory-card.matched>span{font-size:2.1rem}.game-bottom{flex-wrap:wrap}.game-bottom .quiet{font-size:.8rem}
  .journal{padding:28px 18px}.journal h1{font-size:2.1rem}.journal .section-heading{flex-wrap:wrap}.journal-card{padding:20px}.skill-row{flex-wrap:wrap}.skill-row span{font-size:.8rem}.eyebrow{font-size:.7rem}.small{font-size:.85rem}
 }
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}.memory-card:hover,.button:hover{transform:none}}
+.chapter-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chapter-card{display:grid;grid-template-columns:148px minmax(0,1fr);gap:14px;align-items:stretch;text-align:left;background:var(--paper);border:1px solid var(--line);border-bottom:4px solid #bac9b7;border-radius:13px;padding:0;min-height:132px;overflow:hidden;box-shadow:var(--shadow);color:inherit}
+.chapter-card:hover{transform:translateY(-4px);border-color:#658773}
+.chapter-thumb{width:148px;height:100%;min-height:132px;object-fit:cover}
+.chapter-copy{display:flex;flex-direction:column;gap:6px;padding:16px 16px 16px 0}
+.chapter-num{font-size:.72rem;font-weight:800;letter-spacing:.12em;color:#66785a}
+.chapter-copy strong{font-family:Georgia,serif;font-size:1.15rem;line-height:1.2}
+.chapter-copy>span{font-size:.9rem;color:#576b5f;line-height:1.4}
+.status-line{font-size:.85rem;font-weight:750;color:var(--forest);margin-top:4px}
+.chapter-intro{position:relative;isolation:isolate;min-height:calc(100dvh - 92px);display:flex;align-items:center;background:#32533c;padding:65px max(30px,calc((100vw - 1190px)/2))}
+.chapter-intro .scene-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.chapter-intro .intro-panel{position:relative;z-index:1}
+.bundle-wrap{display:grid;gap:12px}
+.bundle-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bundle-col{background:#fffef8;border:1px solid #ccd6bd;border-radius:10px;padding:12px;text-align:center}
+.bundle-col strong{display:block;font-size:1.8rem;color:#375939}
+.bundle-col span{font-size:.8rem;color:#60714f}
+.bundle-col .ten-units{margin-top:8px;grid-template-columns:repeat(5,14px);gap:4px}
+.bundle-col .unit-dot{width:14px;height:14px}
+.bundle-col .unit-dot.ten{background:#4d7539;border-radius:2px;height:22px}
+.bundle-col .unit-dot.hundred{background:#375939;width:18px;height:18px}
+.bundle-tools{display:flex;flex-wrap:wrap;gap:8px}
+.bundle-tools .button{min-height:48px;flex:1 1 140px}
+.bundle-total{margin:0;font-size:1rem;text-align:center}
+.keepsake-stamp{border:2px solid #8aa078;border-radius:12px;padding:14px;margin:18px 0;font-weight:700}
+.keepsake-stamp small{display:block;font-weight:500;margin-top:6px;color:#5c6d52}
+.welcome .button.soft{margin-top:10px;background:#e9edde;color:var(--forest)}
+@media(max-width:1050px){.chapter-grid{grid-template-columns:1fr}.chapter-card{grid-template-columns:120px minmax(0,1fr)}.chapter-thumb{width:120px}}
+@media(max-width:700px){
+ .chapter-grid{grid-template-columns:1fr}.chapter-card{grid-template-columns:1fr;min-height:0}.chapter-thumb{width:100%;height:140px;min-height:140px;object-position:62% 50%}
+ .chapter-copy{padding:14px 16px 18px}.chapter-intro{flex-direction:column;padding:0;align-items:stretch;min-height:calc(100dvh - 76px)}
+ .chapter-intro .scene-art{position:relative;height:210px;inset:auto;z-index:0;object-position:62% 50%}
+ .chapter-intro .intro-panel{margin:0;width:100%;max-width:none;border-radius:18px 18px 0 0}
+ .bundle-board{grid-template-columns:1fr}.bundle-tools .button{flex:1 1 100%}
+ .question-card h1{font-size:1.4rem}
+}
+@media(max-width:360px){.topbar{padding:8px 10px}.chapter-thumb{height:120px}.answer{min-height:64px;font-size:1rem}.lesson-shell{padding:12px 10px 24px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}.memory-card:hover,.button:hover,.chapter-card:hover{transform:none}}
