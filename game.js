@@ -310,17 +310,22 @@
     if (form) form.addEventListener('submit', e => { e.preventDefault(); submitNumber(); });
   }
   function showHint() {
-    if (!current || current.solved) return;
+    if (!current) return;
+    const coach = $('coach-copy');
+    const vis = $('main').querySelector('.visual-model');
+    if (coach) coach.textContent = current.q.explanation;
+    if (vis) vis.innerHTML = model(current.q, true);
+    if (current.solved) return;
     current.helped = true;
     if (state.resume) state.resume.helped = true;
-    $('coach-copy').textContent = current.q.explanation;
-    $('main').querySelector('.visual-model').innerHTML = model(current.q, true);
     const feedback = $('feedback');
-    feedback.hidden = false;
-    feedback.className = 'feedback gentle';
-    feedback.textContent = session.kind === 'checkpoint'
-      ? 'This one will count as practice with help, not as an independent check.'
-      : 'Use the example, then give it a try. You still earn your star.';
+    if (feedback) {
+      feedback.hidden = false;
+      feedback.className = 'feedback gentle';
+      feedback.textContent = session.kind === 'checkpoint'
+        ? 'This one will count as practice with help, not as an independent check.'
+        : 'Use the example, then give it a try. You still earn your star.';
+    }
     persist();
   }
   function submitNumber() {
