@@ -704,7 +704,11 @@
     const a = b.dataset.action;
     if (a === 'map') chapterMap();
     else if (a === 'practice') freePractice();
-    else if (a === 'choose') { $('chapter-list')?.scrollIntoView({ behavior: 'smooth' }); }
+    else if (a === 'choose') {
+      const first = $('main').querySelector('button.chapter-card');
+      $('chapter-list')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      if (first) first.focus();
+    }
     else if (a === 'chapter') openChapter(b.dataset.id, true);
     else if (a === 'continue') continueAdventure();
     else if (a === 'begin-chapter') beginChapter(b.dataset.id, b.dataset.mission);
