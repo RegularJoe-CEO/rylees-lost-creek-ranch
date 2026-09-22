@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const files = ['index.html', 'styles.css', 'math.js', 'progress.js', 'chapters.js', 'game.js'];
+const files = ['index.html', 'styles.css', 'math.js', 'module2.js', 'progress.js', 'chapters.js', 'game.js'];
 for (const file of files) {
   if (!fs.existsSync(file)) throw new Error('Missing source: ' + file);
   if (file.endsWith('.js')) new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });

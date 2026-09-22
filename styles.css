@@ -244,3 +244,47 @@ p{font-size:1.05rem}
 }
 @media(max-width:360px){.topbar{padding:8px 10px}.chapter-thumb{height:120px}.answer{min-height:64px;font-size:1rem}.lesson-shell{padding:12px 10px 24px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}.memory-card:hover,.button:hover,.chapter-card:hover{transform:none}}
+
+/* The metric trail uses the same ranch art, ink, and Grandma as the earlier jobs. */
+.metric-scene{position:relative;isolation:isolate;min-height:510px;display:flex;align-items:center;padding:40px max(28px,calc((100vw - 1160px)/2));background:#214d41}
+.metric-scene>.scene-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%;z-index:-2}
+.metric-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#112f2899,transparent 80%);z-index:-1}
+.metric-intro{width:min(100%,490px);background:#fffefa;box-shadow:0 24px 65px #12322666;border-radius:17px;padding:30px}
+.metric-intro h1{font-size:clamp(2rem,4vw,3rem);margin-bottom:12px}
+.metric-intro p{margin-bottom:17px}
+.metric-intro label{display:block;font-weight:750;margin-bottom:8px}
+.metric-intro select{width:100%;border:1px solid #91a989;border-radius:9px;padding:12px;background:white;color:var(--ink);font-size:1rem;min-height:48px}
+.metric-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.metric-actions .button:first-child{background:var(--gold);color:var(--forest)}
+.metric-intro .quiet{font-size:.9rem;margin-top:14px;margin-bottom:0}
+.metric-lesson-list{max-width:1200px;padding:32px 24px 55px;margin:0 auto}
+.metric-lesson-list h2{margin:0 0 8px}
+.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px}
+.metric-lesson{display:flex;flex-direction:column;gap:7px;align-items:flex-start;min-height:177px;border:1px solid var(--line);border-bottom:4px solid #bac9b7;background:var(--paper);border-radius:12px;padding:18px;text-align:left;color:var(--ink);box-shadow:var(--shadow)}
+.metric-lesson.current{border-color:#9d822b;border-bottom-color:#c39a3e;background:#fff9e8}
+.metric-lesson>span{font-weight:800;font-size:.8rem;letter-spacing:.1em;color:#506744}
+.metric-lesson strong{font:700 1.28rem Georgia,serif;line-height:1.2}
+.metric-lesson small{font-size:.9rem;line-height:1.35;color:#4c6555}
+.metric-lesson em{font-style:normal;margin-top:auto;font-size:.85rem;font-weight:700;color:var(--forest)}
+.metric-shell .lesson-layout{align-items:start}
+.metric-shell .coach-tools{justify-content:center}
+.metric-shell .visual-model p{margin-bottom:0}
+.metric-equation{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;font-size:1.3rem;font-weight:700}
+.metric-equation span{padding:10px 14px;background:white;border:1px solid #cad5bb;border-radius:8px}
+.metric-table{border-collapse:collapse;width:min(100%,330px);margin:auto;background:white;font-size:1.1rem}
+.metric-table caption{font-size:.9rem;font-weight:750;padding:8px}
+.metric-table th,.metric-table td{border:1px solid #a4b89d;text-align:center;padding:8px 16px}
+.metric-strips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+.metric-strips span{display:block;border:2px solid #729369;background:#fffefa;border-radius:8px;padding:10px 12px;font-size:1rem}
+.metric-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.metric-answers .answer{min-height:65px;justify-content:center}
+.metric-shell #metric-form{margin-top:20px}
+.metric-shell #metric-form label{display:block;font-weight:750;margin-bottom:8px}
+.metric-shell input{min-width:0}
+.metric-feedback{min-height:52px;margin:14px 0;font-weight:650}
+.metric-finish{position:relative;max-width:1000px;margin:35px auto;background:var(--paper);border-radius:17px;overflow:hidden;box-shadow:var(--shadow)}
+.metric-finish img{width:100%;height:280px;object-fit:cover}
+.metric-finish>div{padding:24px 30px 35px}
+@media(max-width:800px){.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.metric-scene{display:block;min-height:0;padding:205px 0 0}.metric-scene>.scene-art{height:220px;bottom:auto}.metric-scene:after{display:none}.metric-intro{width:100%;border-radius:17px 17px 0 0;box-shadow:none;padding:22px 18px}.metric-lesson-list{padding:27px 18px}.metric-grid{grid-template-columns:1fr}.metric-lesson{min-height:132px}.metric-shell .lesson-layout{flex-direction:column-reverse}.metric-answers{grid-template-columns:1fr 1fr}.metric-answers .answer{font-size:.95rem;min-height:65px}.metric-finish{margin:0;border-radius:0}.metric-finish img{height:190px}}
+@media(max-width:360px){.metric-actions .button{width:100%}.metric-equation{font-size:1rem}.metric-equation span{padding:8px}}
