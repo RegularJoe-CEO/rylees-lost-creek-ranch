@@ -14,6 +14,8 @@ Then: Share → **Add to Home Screen**.
 
 Use this same address so saved stars stay on the device. Games with Grandma are take-turns on one device, not online multiplayer.
 
+There is no account or sign-in. Stars, chapter progress, Module 2 round counts, and one unfinished question are saved in the browser on that device. Open **Journal** in the game to see its record. GitHub cannot see a child's saved progress, and clearing that browser's site data can erase it.
+
 Repo: https://github.com/RegularJoe-CEO/rylees-lost-creek-ranch
 
 ## Family

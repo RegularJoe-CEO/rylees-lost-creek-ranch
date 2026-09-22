@@ -85,7 +85,7 @@
       + button('module2', 'Play Module 2 · Lesson ' + (state.metric?.lesson || 1) + ' ' + icon('arrow'), 'gold start-today')
       + button('continue', resume ? continueLabel : 'Review place value', 'soft')
       + '</div><div class="map-sign map-barn">THE BARN</div><div class="map-sign map-creek">LOST CREEK</div>'
-      + '<div class="world-caption"><span class="live-dot"></span> Review, today, and ahead. No clock.</div></section>'
+      + '<div class="world-caption"><span class="live-dot"></span> Review and explore ahead. No clock.</div></section>'
       + '<section class="trail-section" id="chapter-list"><div class="section-heading"><div><span class="eyebrow dark">EARLIER RANCH WORK</span><h2>Place-value chapters to revisit.</h2></div>'
       + button('practice', 'Free practice', 'text') + '</div>'
       + '<div class="chapter-grid">' + cards + '</div></section>'
@@ -665,6 +665,13 @@
     }).join('');
     const checks = state.checks.slice(-6).reverse().map(c => '<li>' + escape(C.byId[c.chapterId].title) + ': '
       + (c.passed ? 'passed' : 'practiced with help') + ' (' + c.independent + ' independent)</li>').join('') || '<li>No chapter checks yet.</li>';
+    const metric = state.metric || RanchModule2.metricFresh();
+    const metricRounds = RanchModule2.lessons.map(([name], i) => ({ name, lesson: i + 1, count: metric.completed?.[i + 1] || 0 }))
+      .filter(item => item.count > 0);
+    const metricHistory = metricRounds.map(item => '<li>' + (item.lesson === 9 ? 'Ahead: ' : 'Lesson ' + item.lesson + ': ')
+      + escape(item.name) + ', ' + item.count + ' completed ' + (item.count === 1 ? 'round' : 'rounds') + '</li>').join('') || '<li>No Module 2 rounds completed yet.</li>';
+    const metricPaused = metric.active ? 'Saved question: ' + (metric.active.lesson === 9 ? 'Ahead' : 'Lesson ' + metric.active.lesson)
+      + ', question ' + (metric.active.index + 1) + ' of 4' + (metric.active.solved ? ' (answered).' : ' (in progress).') : 'No unfinished question saved.';
     const rec = recommendedChapter();
     mount('<section class="journal"><div class="section-heading"><div><span class="eyebrow dark">FOR RYLEE & HIS GROWN-UPS</span><h1>The learning journal</h1></div>'
       + button('map', '← Ranch', 'soft') + '</div><div class="journal-grid"><article class="journal-card"><h2>What are we practicing?</h2>'
@@ -674,6 +681,9 @@
       + C.list.map(ch => '<option value="' + ch.id + '"' + (state.parentStart === ch.id ? ' selected' : '') + '>Chapter ' + ch.number + '. ' + escape(ch.title) + '</option>').join('')
       + '</select><p class="small">A parent can start on any chapter. An advanced child may take a check without every earlier job.</p>'
       + button('placement', 'Try a short starting check', 'forest')
+      + '<h2>Module 2 on this device</h2><p>Game starting point: Lesson ' + metric.lesson + '. This is a game setting, not a record from school.</p>'
+      + '<p class="small">' + metricPaused + '</p><ul class="small">' + metricHistory + '</ul>'
+      + '<p class="small">The game remembers finished rounds and one current question, but has no day-by-day activity log.</p>'
       + '<h2>Ranch keepsakes</h2>' + chapterRows
       + '<h2>Recent checks</h2><ul class="small">' + checks + '</ul>'
       + '<p class="small">Recommended review: ' + escape(C.byId[rec].title) + '.</p>'
