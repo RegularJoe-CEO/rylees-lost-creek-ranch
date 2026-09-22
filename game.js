@@ -80,13 +80,13 @@
     }).join('');
     const continueLabel = resume ? 'Continue adventure' : 'Start the first job';
     mount('<section class="world"><img class="world-art" src="assets/ranch.webp" alt="A painted ranch with a red barn, bluebonnets, oak trees, and a fishing dock beside a winding creek." fetchpriority="high">'
-      + '<div class="world-shade"></div><div class="welcome"><span class="eyebrow">YOUR NEXT RANCH JOB</span><h1>Hey, Rylee.<br>Let’s hit the trail.</h1>'
-      + '<p>' + escape(recCh.title) + '. ' + escape(recCh.job) + '</p>'
-      + button('continue', continueLabel + ' ' + icon('arrow'), 'gold start-today')
-      + button('choose', 'Choose a chapter', 'soft')
+      + '<div class="world-shade"></div><div class="welcome"><span class="eyebrow">TODAY AT LOST CREEK</span><h1>Hey, Rylee.<br>Let’s hit the trail.</h1>'
+      + '<p>Measure the ranch and find Grandma’s number patterns. Your earlier jobs are here whenever you want to review.</p>'
+      + button('module2', 'Play Module 2 · Lesson ' + (state.metric?.lesson || 1) + ' ' + icon('arrow'), 'gold start-today')
+      + button('continue', resume ? continueLabel : 'Review place value', 'soft')
       + '</div><div class="map-sign map-barn">THE BARN</div><div class="map-sign map-creek">LOST CREEK</div>'
-      + '<div class="world-caption"><span class="live-dot"></span> Supplemental place-value practice. No clock.</div></section>'
-      + '<section class="trail-section" id="chapter-list"><div class="section-heading"><div><span class="eyebrow dark">THE SUMMER JOBS</span><h2>Six chapters. Eighteen ranch jobs.</h2></div>'
+      + '<div class="world-caption"><span class="live-dot"></span> Review, today, and ahead. No clock.</div></section>'
+      + '<section class="trail-section" id="chapter-list"><div class="section-heading"><div><span class="eyebrow dark">EARLIER RANCH WORK</span><h2>Place-value chapters to revisit.</h2></div>'
       + button('practice', 'Free practice', 'text') + '</div>'
       + '<div class="chapter-grid">' + cards + '</div></section>'
       + '<section class="porch-invite"><img src="assets/grandma.webp" alt="Grandma smiling and holding a hand of playing cards." class="grandma-cutout">'
@@ -668,7 +668,8 @@
     const rec = recommendedChapter();
     mount('<section class="journal"><div class="section-heading"><div><span class="eyebrow dark">FOR RYLEE & HIS GROWN-UPS</span><h1>The learning journal</h1></div>'
       + button('map', '← Ranch', 'soft') + '</div><div class="journal-grid"><article class="journal-card"><h2>What are we practicing?</h2>'
-      + '<p>This is supplemental place-value practice. It is not an official Bluebonnet lesson sequence or a full homeschool curriculum.</p>'
+      + '<p>Review the earlier place-value chapters, or play the new Module 2 measurement and patterns trail. These are original practice problems, not a replacement for the Succeed book.</p>'
+      + button('module2', 'Open Module 2', 'forest')
       + '<label for="parent-start">Starting chapter</label><select id="parent-start"><option value="">Recommend for us</option>'
       + C.list.map(ch => '<option value="' + ch.id + '"' + (state.parentStart === ch.id ? ' selected' : '') + '>Chapter ' + ch.number + '. ' + escape(ch.title) + '</option>').join('')
       + '</select><p class="small">A parent can start on any chapter. An advanced child may take a check without every earlier job.</p>'
@@ -680,7 +681,7 @@
       + rows + '<p class="small">Larger numbers appear after at least five independent answers in a recent window of six or more.</p>'
       + '<h2>Try it with your hands</h2><p>Trade ten ones for one ten. The amount does not change.</p><div id="trade-lab"></div>'
       + '</article></div>'
-      + '<p class="privacy-note">Progress stays in this browser on this device. No account, ads, or tracking. Official lesson numbers are omitted until the Grade 4 Course Guide is verified.</p></section>', 'Learning journal');
+      + '<p class="privacy-note">Progress stays in this browser on this device. No account, ads, or tracking. The Module 2 lesson order is taken from the Grade 4 teacher edition, Edition 1.</p></section>', 'Learning journal');
     $('parent-start').addEventListener('change', e => {
       state.parentStart = e.target.value || null;
       if (state.parentStart) state.explicitChapter = state.parentStart;
@@ -708,6 +709,7 @@
     if (!b || b.disabled) return;
     const a = b.dataset.action;
     if (a === 'map') chapterMap();
+    else if (a === 'module2') { stop(); RanchModule2.open({ target: $('main'), state, save: persist, onExit: chapterMap, onPorch: porch }); }
     else if (a === 'practice') freePractice();
     else if (a === 'choose') {
       const first = $('main').querySelector('button.chapter-card');
