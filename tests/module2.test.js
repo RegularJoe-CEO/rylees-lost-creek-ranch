@@ -28,11 +28,21 @@ test('all eight published Module 2 lessons and one next-module warm-up are playa
 test('length, mass, and capacity convert whole and mixed metric units', () => {
   const units = ['m', 'g', 'mL'];
   for (let lesson = 1; lesson <= 3; lesson++) {
-    for (const [rng, expected, unit] of [[() => 0, 2001, units[lesson - 1]], [() => 0.3, 4, ['km', 'kg', 'L'][lesson - 1]]]) {
+    const q = Module2.makeQuestion(lesson, () => 0);
+    assert.equal(q.answer, 2001);
+    assert.equal(q.unit, units[lesson - 1]);
+    assert.equal(q.model.factor, 1000);
+  }
+});
+
+test('Module 2 measurement problems convert larger units into smaller units', () => {
+  const rng = seeded(8824);
+  for (let lesson = 1; lesson <= 3; lesson++) {
+    for (let n = 0; n < 500; n++) {
       const q = Module2.makeQuestion(lesson, rng);
-      assert.equal(q.answer, expected);
-      assert.equal(q.unit, unit);
-      assert.equal(q.model.factor, 1000);
+      assert.ok(['m', 'cm', 'mm', 'g', 'mg', 'L', 'mL'].includes(q.unit), q.prompt);
+      assert.doesNotMatch(q.prompt, /How many whole (?:km|kg|kL|L|m|g|cm) are in that amount/);
+      assert.doesNotMatch(q.prompt, /sketchs/);
     }
   }
 });
@@ -75,7 +85,7 @@ test('the existing save retains stars, old chapters, and the new parent lesson',
   state.jobs = 8;
   state.chapters.bundles.missions['pack-ten'] = { completed: true, index: 4, taught: true, question: null };
   state.metric.lesson = 5;
-  state.metric.active = { lesson: 5, index: 2, q: Module2.makeQuestion(5, seeded(77)), attempts: 0, helped: false, solved: false };
+  state.metric.active = { lesson: 5, index: 2, q: Module2.makeQuestion(5, seeded(77)), attempts: 0, helped: false, solved: false, showSteps: true };
   Progress.save(storage, state);
   const reloaded = Progress.load(storage);
   assert.equal(reloaded.stars, 37);
@@ -83,5 +93,6 @@ test('the existing save retains stars, old chapters, and the new parent lesson',
   assert.equal(reloaded.chapters.bundles.missions['pack-ten'].completed, true);
   assert.equal(reloaded.metric.lesson, 5);
   assert.deepEqual(reloaded.metric.active.q, state.metric.active.q);
+  assert.equal(reloaded.metric.active.showSteps, true);
   assert.equal(Module2.normalize({ lesson: 99, completed: { 1: -100 }, active: { q: { model: { type: 'table', rows: null } } } }).active, null);
 });

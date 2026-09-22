@@ -40,28 +40,23 @@
     const g = units[randomInt(0, units.length - 1, rng)];
     const large = randomInt(2, 8, rng), small = randomInt(1, g.factor - 1, rng);
     const total = large * g.factor + small;
-    const mode = randomInt(0, 3, rng);
+    // Module 2 practices renaming from larger to smaller units.
+    const mode = randomInt(0, 2, rng);
     if (mode === 0) return {
       prompt: `Grandma wrote ${large} ${g.big} ${small} ${g.small} for the ${g.object}. How many ${g.small} is that altogether?`,
       answer: total, unit: g.small, hint: `One ${g.big} equals ${format(g.factor)} ${g.small}. Convert the ${large} ${g.big} first.`,
       explanation: `${large} × ${format(g.factor)} + ${small} = ${format(total)} ${g.small}.`,
       model: { type: 'conversion', big: g.big, small: g.small, factor: g.factor, large, remainder: small }
     };
-    if (mode === 1) return {
-      prompt: `The ranch has ${format(total)} ${g.small} to measure. How many whole ${g.big} are in that amount?`,
-      answer: large, unit: g.big, hint: `Group the ${g.small} into sets of ${format(g.factor)}.`,
-      explanation: `${format(total)} ${g.small} = ${large} ${g.big} and ${small} ${g.small}. There are ${large} whole ${g.big}.`,
-      model: { type: 'conversion', big: g.big, small: g.small, factor: g.factor, large, remainder: small }
-    };
     const extra = randomInt(1, Math.max(2, Math.floor(g.factor / 3)), rng);
-    if (mode === 2) return {
+    if (mode === 1) return {
       prompt: `A ${g.object} measures ${large} ${g.big} ${small} ${g.small}. Add ${extra} ${g.small}. What is the new total in ${g.small}?`,
       answer: total + extra, unit: g.small, hint: `Rename the ${g.big} in ${g.small}, then add ${small} and ${extra}.`,
       explanation: `${large} × ${format(g.factor)} + ${small} + ${extra} = ${format(total + extra)} ${g.small}.`,
       model: { type: 'strip', labels: [`${large} ${g.big} ${small} ${g.small}`, `+ ${extra} ${g.small}`] }
     };
     return {
-      prompt: `Two ${g.object}s measure ${large} ${g.big} and ${small} ${g.small}. How many ${g.small} more is the larger one?`,
+      prompt: `Two ${g.object === 'ranch sketch' ? 'ranch sketches' : g.object + 's'} measure ${large} ${g.big} and ${small} ${g.small}. How many ${g.small} more is the larger one?`,
       answer: large * g.factor - small, unit: g.small, hint: `Both measures need the same unit before you subtract.`,
       explanation: `${large} ${g.big} = ${format(large * g.factor)} ${g.small}; ${format(large * g.factor)} − ${small} = ${format(large * g.factor - small)} ${g.small}.`,
       model: { type: 'strip', labels: [`${large} ${g.big}`, `${small} ${g.small}`] }
@@ -94,15 +89,20 @@
     const large = randomInt(2, 6, rng), used = randomInt(140, 660, rng), added = randomInt(30, 130, rng);
     const start = large * 1000;
     const mode = randomInt(0, 1, rng);
+    const supply = g.name === 'Mass' ? 'feed' : 'water';
     if (mode === 0) return {
-      prompt: `Grandma starts with ${large} ${g.big} for a ${g.object}, uses ${used} ${g.small}, then adds ${added} ${g.small}. How many ${g.small} does she have now?`,
+      prompt: g.name === 'Length'
+        ? `A trail is ${large} ${g.big} long. Grandma shortens it by ${used} ${g.small}, then adds another ${added} ${g.small}. What is its new length in ${g.small}?`
+        : `Grandma starts with ${large} ${g.big} of ${supply}, uses ${used} ${g.small}, then adds ${added} ${g.small}. How many ${g.small} does she have now?`,
       answer: start - used + added, unit: g.small,
       hint: `Rename ${large} ${g.big} in ${g.small}. Subtract what she used, then add the new amount.`,
       explanation: `${format(start)} − ${used} + ${added} = ${format(start - used + added)} ${g.small}.`,
       model: { type: 'strip', labels: [`Start: ${large} ${g.big}`, `Used: ${used} ${g.small}`, `Added: ${added} ${g.small}`] }
     };
     return {
-      prompt: `Two supplies total ${large} ${g.big}. The first uses ${used} ${g.small} and the second uses ${added} ${g.small}. How many ${g.small} are left?`,
+      prompt: g.name === 'Length'
+        ? `Two trail sections have a combined length of ${large} ${g.big}. Grandma shortens one by ${used} ${g.small} and the other by ${added} ${g.small}. What is their new combined length in ${g.small}?`
+        : `Grandma has ${large} ${g.big} of ${supply} in two ${g.name === 'Mass' ? 'bags' : 'jugs'}. She uses ${used} ${g.small} from one and ${added} ${g.small} from the other. How many ${g.small} remain?`,
       answer: start - used - added, unit: g.small,
       hint: `Rename the total in ${g.small}, then take away both parts.`,
       explanation: `${format(start)} − ${used} − ${added} = ${format(start - used - added)} ${g.small}.`,
@@ -172,7 +172,7 @@
       (m.type === 'strip' && Array.isArray(m.labels) && m.labels.length <= 8 && m.labels.every(x => typeof x === 'string'))
     );
     if (active && Number.isInteger(active.lesson) && active.lesson >= 1 && active.lesson <= 9 && Number.isInteger(active.index) && active.index >= 0 && active.index < 4 && q && q.lesson === active.lesson && typeof q.prompt === 'string' && typeof q.unit === 'string' && Number.isSafeInteger(q.answer) && q.answer >= 0 && Array.isArray(q.choices) && q.choices.length === 4 && q.choices.every(v => Number.isSafeInteger(v) && v >= 0) && q.choices.includes(q.answer) && typeof q.explanation === 'string' && typeof q.hint === 'string' && safeModel) {
-      result.active = { lesson: active.lesson, index: active.index, q, attempts: Math.min(Number.isSafeInteger(active.attempts) && active.attempts >= 0 ? active.attempts : 0, 10), helped: active.helped === true, solved: active.solved === true };
+      result.active = { lesson: active.lesson, index: active.index, q, attempts: Math.min(Number.isSafeInteger(active.attempts) && active.attempts >= 0 ? active.attempts : 0, 10), helped: active.helped === true, solved: active.solved === true, showSteps: active.showSteps === true };
     }
     return result;
   }
@@ -205,15 +205,17 @@
     });
   }
   function play(lesson) {
-    if (ctx.metric.active?.lesson !== lesson) ctx.metric.active = { lesson, index: 0, q: makeQuestion(lesson), attempts: 0, helped: false, solved: false };
+    if (ctx.metric.active?.lesson !== lesson) ctx.metric.active = { lesson, index: 0, q: makeQuestion(lesson), attempts: 0, helped: false, solved: false, showSteps: false };
     save(); question();
   }
   function question() {
     const s = ctx.metric.active, q = s.q, name = lessons[s.lesson - 1][0];
+    const coachText = s.showSteps ? q.explanation : s.solved ? 'Nice work. Want to see Grandma’s steps?' : 'Take your time. We can figure it out together.';
+    const hintText = s.showSteps ? 'Hide the steps' : 'Show me how';
     const choice = s.index % 2 === 0;
     const answerUi = choice ? '<div class="metric-answers">' + q.choices.map(n => `<button class="answer" type="button" data-metric="answer" data-value="${n}"${s.solved ? ' disabled' : ''}>${format(n)}${q.unit ? ' ' + escape(q.unit) : ''}</button>`).join('') + '</div>'
       : `<form id="metric-form"><label for="metric-number">Your answer${q.unit ? ' in ' + escape(q.unit) : ''}</label><div class="answer-input-row"><input id="metric-number" inputmode="numeric" autocomplete="off"${s.solved ? ' disabled' : ''}><button class="button gold" type="submit"${s.solved ? ' disabled' : ''}>Check it</button></div></form>`;
-    mount(`<section class="lesson-shell metric-shell"><div class="lesson-top">${navButton('Save and exit', 'map')}<span>Module 2 · ${s.lesson === 9 ? 'Ahead' : `Lesson ${s.lesson}`} · ${s.index + 1} of 4</span></div><div class="lesson-layout"><aside class="coach"><img src="assets/grandma.webp" alt="Grandma"><span class="eyebrow dark">GRANDMA’S TIP</span><p id="metric-coach">${escape(s.solved || s.helped ? q.explanation : 'Take your time. We can figure it out together.')}</p><div class="coach-tools">${navButton('Show me how', 'hint')}</div></aside><article class="question-card"><div class="question-meta">${escape(name)}</div><h1>${escape(q.prompt)}</h1><div class="visual-model">${modelHtml(q.model)}</div>${answerUi}<p class="metric-feedback" id="metric-feedback" role="status" aria-live="polite">${s.solved ? 'Nice work. Your answer is saved.' : ''}</p><div id="metric-next">${s.solved ? navButton(s.index === 3 ? 'Finish ranch round' : 'Next question', 'next') : ''}</div></article></div></section>`, 'Metric math');
+    mount(`<section class="lesson-shell metric-shell"><div class="lesson-top">${navButton('Save and exit', 'map')}<span>Module 2 · ${s.lesson === 9 ? 'Ahead' : `Lesson ${s.lesson}`} · ${s.index + 1} of 4</span></div><div class="lesson-layout"><aside class="coach"><img src="assets/grandma.webp" alt="Grandma"><span class="eyebrow dark">GRANDMA’S TIP</span><p id="metric-coach">${escape(coachText)}</p><div class="coach-tools">${navButton(hintText, 'hint')}</div></aside><article class="question-card"><div class="question-meta">${escape(name)}</div><h1>${escape(q.prompt)}</h1><div class="visual-model">${modelHtml(q.model)}</div>${answerUi}<p class="metric-feedback" id="metric-feedback" role="status" aria-live="polite">${s.solved ? 'Nice work. Your answer is saved.' : ''}</p><div id="metric-next">${s.solved ? navButton(s.index === 3 ? 'Finish ranch round' : 'Next question', 'next') : ''}</div></article></div></section>`, 'Metric math');
     const form = ctx.target.querySelector('#metric-form');
     if (form) form.addEventListener('submit', e => { e.preventDefault(); submit(ctx.target.querySelector('#metric-number').value); });
   }
@@ -249,7 +251,7 @@
       mount('<section class="metric-finish"><img src="assets/porch.webp" alt="Grandma and Rylee on the porch"><div><span class="eyebrow dark">RANCH ROUND COMPLETE</span><h1>Good work on ' + escape(name) + '.</h1><p>Four fresh questions, a few more stars, and Grandma’s porch is waiting.</p><div class="metric-actions">' + navButton('Choose another lesson', 'map') + navButton('Play with Grandma', 'porch') + '</div></div></section>', 'Ranch round complete');
       return;
     }
-    s.index++; s.q = makeQuestion(s.lesson); s.attempts = 0; s.helped = false; s.solved = false;
+    s.index++; s.q = makeQuestion(s.lesson); s.attempts = 0; s.helped = false; s.solved = false; s.showSteps = false;
     save(); question();
   }
   function handleClick(e) {
@@ -260,8 +262,11 @@
     if (action === 'hint') {
       const s = ctx.metric.active;
       if (!s) return;
-      ctx.target.querySelector('#metric-coach').textContent = s.q.explanation;
-      if (!s.solved) { s.helped = true; save(); }
+      s.showSteps = !s.showSteps;
+      if (s.showSteps && !s.solved) s.helped = true;
+      ctx.target.querySelector('#metric-coach').textContent = s.showSteps ? s.q.explanation : s.solved ? 'Nice work. Want to see Grandma’s steps?' : 'Take your time. We can figure it out together.';
+      b.textContent = s.showSteps ? 'Hide the steps' : 'Show me how';
+      save();
     }
     if (action === 'next') next();
     if (action === 'lesson') play(Number(b.dataset.lesson));
