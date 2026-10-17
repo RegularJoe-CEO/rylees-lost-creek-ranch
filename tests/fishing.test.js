@@ -62,3 +62,22 @@ test('new fishing trip resumes without touching older stars, jobs, or Module 2',
   assert.deepEqual(loaded.fishing.active, state.fishing.active);
   assert.equal(Fishing.normalize({ focus: 'fake', catches: -5, active: { stage: 'math', caught: 2, story: 99 } }).active, null);
 });
+
+test('changing topics replaces a pending question but keeps trip progress', () => {
+  const p = Fishing.fresh();
+  p.active = { stage: 'math', caught: 2, story: 3, spot: 'rocks', task: Fishing.makeMathQuestion('products', 20, 1), reel: 0, help: true };
+  assert.equal(Fishing.setFocus(p, 'area'), true);
+  assert.equal(p.focus, 'area');
+  assert.equal(p.active.task, null);
+  assert.equal(p.active.help, false);
+  assert.equal(p.active.caught, 2);
+  assert.equal(p.active.spot, 'rocks');
+  assert.equal(Fishing.setFocus(p, 'unknown'), false);
+  assert.equal(p.focus, 'area');
+});
+
+test('six consecutive catches show each fish species', () => {
+  const names = Array.from({ length: 6 }, (_, i) => Fishing.speciesAtCatch(i + 1));
+  assert.equal(new Set(names).size, 6);
+  assert.equal(Fishing.speciesAtCatch(7), names[0]);
+});

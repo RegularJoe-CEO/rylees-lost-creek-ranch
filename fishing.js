@@ -56,6 +56,7 @@
     { id: 'rocks', name: 'The rocks', emoji: '🪨', line: 'Watch for a ripple between the stones.' }
   ];
   const fish = ['Bluegill', 'Sunfish', 'Speckled trout', 'Creek bass', 'Silver minnow', 'Golden perch'];
+  const speciesAtCatch = count => fish[(Math.max(1, integer(count)) - 1) % fish.length];
   const stages = ['spot', 'read', 'word', 'question', 'cast', 'math', 'reel', 'catch', 'finish'];
   const integer = n => Number.isSafeInteger(n) && n >= 0 ? Math.min(n, 100000) : 0;
   function fresh() { return { focus: 'products', trips: 0, catches: 0, read: 0, math: 0, active: null }; }
@@ -114,6 +115,16 @@
       hint: `Think ${a} × ${factor}. Ten times as many shifts one place; a hundred times as many shifts two.`, correct,
       choices: choices(correct, [a * (factor === 10 ? 100 : 10), correct + a], turn) };
   }
+  function setFocus(progress, topic) {
+    if (!topics.some(t => t.id === topic)) return false;
+    if (progress.focus === topic) return true;
+    progress.focus = topic;
+    if (progress.active && progress.active.stage === 'math') {
+      progress.active.task = null;
+      progress.active.help = false;
+    }
+    return true;
+  }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function open({ target, state, save, onExit, onPorch }) {
     state.fishing = normalize(state.fishing);
@@ -122,7 +133,7 @@
     function commit() { save(); }
     function button(action, label, cls = '') { return `<button type="button" class="button ${cls}" data-fishing="${action}">${label}</button>`; }
     function frame(body, title) {
-      target.innerHTML = `<section class="fishing-shell"><div class="fishing-bar"><span>LOST CREEK FISHING</span>${button('exit', '← Ranch', 'soft')}</div>${body}</section>`;
+      target.innerHTML = `<section class="fishing-shell"><div class="fishing-bar"><span>LOST CREEK FISHING</span><div>${p.active && title === 'Fishing trip' ? button('home', 'Change math spot', 'soft') : ''}${button('exit', '← Ranch', 'soft')}</div></div>${body}</section>`;
       target.setAttribute('aria-label', title || 'Fishing at Lost Creek');
       const h = target.querySelector('h1'); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
       commit();
@@ -141,7 +152,7 @@
       if (a.stage === 'spot') {
         content = `<span class="eyebrow dark">PICK YOUR PLACE</span><h1>Where will you cast?</h1><p>Look around the creek. Every spot has a surprise.</p><div class="fishing-spots">${spots.map(s => `<button type="button" data-fishing="spot" data-id="${s.id}"><span>${s.emoji}</span><strong>${s.name}</strong><small>${s.line}</small></button>`).join('')}</div>`;
       } else if (a.stage === 'read') {
-        content = `<span class="eyebrow dark">A CREEK STORY · ${esc(spot.name)}</span><h1>${esc(story.title)}</h1><p class="story-text">${esc(story.text)}</p><div class="fishing-actions">${button('listen', 'Listen with Grandma', 'soft')}${button('read', 'I read it. Next clue →', 'forest')}</div><p class="small">Take your time. You can read it more than once.</p>`;
+        content = `<span class="eyebrow dark">A CREEK STORY · ${esc(spot.name)}</span><h1>${esc(story.title)}</h1><p class="story-text">${esc(story.text)}</p><div class="fishing-actions">${button('listen', 'Listen with Grandma', 'soft')}${button('read', 'I read it. Next clue →', 'forest')}</div><p class="fishing-note" role="status">${esc(note)}</p><p class="small">Take your time. You can read it more than once.</p>`;
       } else if (a.stage === 'word') {
         const opts = placeText([story.chunks, ...story.distractors], a.story + a.caught);
         content = `<span class="eyebrow dark">WORD CLUE</span><h1>Break up “${esc(story.word)}”</h1><p>Say each part. Which parts sound right together?</p><div class="fishing-options">${opts.map(o => `<button type="button" data-fishing="word" data-value="${esc(o)}">${esc(o)}</button>`).join('')}</div><p class="fishing-note" role="status">${esc(note)}</p>${button('backstory', 'Read the story again', 'soft')}`;
@@ -156,7 +167,7 @@
       } else if (a.stage === 'reel') {
         content = `<span class="eyebrow dark">REEL IT IN</span><h1>Keep the line steady!</h1><div class="reel-display"><span class="reel-fish">🐟</span><span class="reel-line" style="--reel:${a.reel}"></span><span class="reel-rod">🎣</span></div><p>${a.reel} of 3 gentle turns</p>${button('reel', a.reel < 2 ? 'Turn the reel ↻' : 'Lift the catch!', 'gold')}`;
       } else if (a.stage === 'catch') {
-        const species = fish[(p.catches + a.story) % fish.length];
+        const species = speciesAtCatch(p.catches);
         content = `<span class="eyebrow dark">NICE CATCH!</span><h1>You met a ${esc(species)}.</h1><div class="catch-fish" aria-hidden="true">🐟</div><p>You read the creek clue, solved the problem, and reeled gently. Grandma helps put the fish back in the water.</p>${button('release', a.caught === 2 ? 'Release it and see the trip →' : 'Release it and cast again →', 'forest')}`;
       }
       frame(`${progress()}<div class="fishing-board"><div class="fishing-art"><img src="assets/fishing-cove.webp" alt="Lost Creek fishing cove"><span class="fishing-location">${spot ? esc(spot.name) : 'The fishing cove'}</span></div><div class="fishing-card">${content}</div></div>`, 'Fishing trip');
@@ -173,6 +184,7 @@
       if (!b || !target.contains(b)) return;
       const action = b.dataset.fishing, a = p.active;
       if (action === 'exit') { if ('speechSynthesis' in root) root.speechSynthesis.cancel(); onExit(); return; }
+      if (action === 'home') { if ('speechSynthesis' in root) root.speechSynthesis.cancel(); home(); return; }
       if (action === 'review') { onExit(); root.document.querySelector('[data-action="module2"]')?.click(); return; }
       if (action === 'start') { if (!p.active) p.active = { stage: 'spot', caught: 0, story: (p.trips * 3) % stories.length, spot: null, task: null, reel: 0, help: false }; render(); return; }
       if (!a) return;
@@ -190,18 +202,18 @@
       else if (action === 'math') { if (Number(b.dataset.value) === a.task.correct) { p.math++; advance('reel'); } else { note = a.task.hint; a.help = true; render(); } }
       else if (action === 'reel') { a.reel++; if (a.reel === 3) { p.catches++; state.stars++; advance('catch'); } else render(); }
       else if (action === 'release') { a.caught++; if (a.caught === 3) { p.trips++; a.stage = 'finish'; state.jobs++; render(); } else { a.story = (a.story + 1) % stories.length; a.spot = null; a.task = null; a.reel = 0; a.help = false; advance('spot'); } }
-      else if (action === 'again') { p.active = null; p.active = { stage: 'spot', caught: 0, story: (p.trips * 3) % stories.length, spot: null, task: null, reel: 0, help: false }; render(); }
+      else if (action === 'again') { p.active = null; home(); }
       else if (action === 'porch') { p.active = null; commit(); onPorch(); }
     };
     target.addEventListener('click', target._fishingHandler);
     if (target._fishingChange) target.removeEventListener('change', target._fishingChange);
     target._fishingChange = function (e) {
-      if (e.target.id === 'fishing-focus') { p.focus = e.target.value; commit(); }
+      if (e.target.id === 'fishing-focus' && setFocus(p, e.target.value)) { note = ''; commit(); }
     };
     target.addEventListener('change', target._fishingChange);
-    render();
+    home();
   }
-  const api = { fresh, normalize, makeMathQuestion, topics, stories, open };
+  const api = { fresh, normalize, makeMathQuestion, setFocus, speciesAtCatch, topics, stories, open };
   root.RanchFishing = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
