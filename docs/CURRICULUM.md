@@ -41,3 +41,16 @@ These IDs must not change if display order later follows an official sequence.
 4. `forms` Grandma's Order Book
 5. `compare` Choose the Creek Route
 6. `round` Ready for Family Day
+
+## Fishing trip and Module 3 (17 October 2026)
+
+The [Bluebonnet Learning Grade 4 Module 3 Teacher Edition](https://d1yqpar94jqbqm.cloudfront.net/documents/BLMath_Gr4_M3_TE_ENG.pdf), module overview and lesson objectives, was inspected. The game's fishing math offers short original practice by topic, not a lesson-by-lesson rendering of Succeed. School pacing and Rylee's exact page are unknown. The default is larger multiplication; the adult or child can select an earlier or later spot at any time.
+
+| Fishing math spot | Module 3 location | Scope in game |
+| --- | --- | --- |
+| Area and perimeter | Topic A, lessons 1–3 | Area of rectangles and perimeter of rectangles as a warm-up. |
+| Multiply by 10 and 100 | Topic B, lessons 4–6 | Basic multiples of 10 and 100. |
+| Larger multiplication | Topic C, lessons 7–11, with word-problem practice relevant to Topic D | Two-digit by one-digit multiplication in a fishing story, with a tens and ones hint. The module also teaches larger factors and several models not all represented here. |
+| Sharing with remainders | Topic E, lessons 14–21 | A simple division-with-remainder preview. This does not cover the full module sequence. |
+
+Reading is original supplemental practice: short connected creek stories, one two-part word reading choice, and one question requiring evidence from the story per fish. The optional Listen button reads text on demand; there is no timer, microphone score, or claim of a reading-level diagnosis. A trip has three different stories. The game remains local to the browser and does not report activity to a school.

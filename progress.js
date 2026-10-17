@@ -13,6 +13,7 @@
       version: 7, stars: 0, jobs: 0, skills: {}, recent: [], completed: {}, focus: 'tens', family: true,
       chapters, resume: null, explicitChapter: null, parentStart: null,
       metric: { lesson: 1, completed: {}, active: null },
+      fishing: { focus: 'products', trips: 0, catches: 0, read: 0, math: 0, active: null },
       placement: { done: false, stoppedAt: null, recommended: 'bundles' },
       sessionSeq: 1, checks: []
     };
@@ -116,6 +117,7 @@
         for (const id of ['fish', 'range', 'trap', 'trail']) state.completed[id] = count(saved.completed?.[id]);
         state.chapters = loadChapters(saved);
         state.metric = root.RanchModule2 ? root.RanchModule2.normalize(saved.metric) : state.metric;
+        state.fishing = root.RanchFishing ? root.RanchFishing.normalize(saved.fishing) : state.fishing;
         state.resume = loadResume(saved);
         state.explicitChapter = chapterIds.includes(saved.explicitChapter) ? saved.explicitChapter : null;
         state.parentStart = chapterIds.includes(saved.parentStart) ? saved.parentStart : null;

@@ -79,13 +79,14 @@
         + '</span>' + prereq + '</span></button>';
     }).join('');
     const continueLabel = resume ? 'Continue adventure' : 'Start the first job';
-    mount('<section class="world"><img class="world-art" src="assets/ranch.webp" alt="A painted ranch with a red barn, bluebonnets, oak trees, and a fishing dock beside a winding creek." fetchpriority="high">'
-      + '<div class="world-shade"></div><div class="welcome"><span class="eyebrow">TODAY AT LOST CREEK</span><h1>Hey, Rylee.<br>Let’s hit the trail.</h1>'
-      + '<p>Measure the ranch and find Grandma’s number patterns. Your earlier jobs are here whenever you want to review.</p>'
-      + button('module2', 'Play Module 2 · Lesson ' + (state.metric?.lesson || 1) + ' ' + icon('arrow'), 'gold start-today')
+    mount('<section class="world"><img class="world-art" src="assets/fishing-cove.webp" alt="A painted fishing cove with a wooden dock, bluebonnets, oak trees, and a wide creek." fetchpriority="high">'
+      + '<div class="world-shade"></div><div class="welcome"><span class="eyebrow">TODAY AT LOST CREEK</span><h1>Hey, Rylee.<br>Let’s go fishing.</h1>'
+      + '<p>Cast with Grandma, read a creek story, and practice your new math. Every catch gets a gentle release.</p>'
+      + button('fishing', 'Go fishing ' + icon('arrow'), 'gold start-today')
       + button('continue', resume ? continueLabel : 'Review place value', 'soft')
       + '</div><div class="map-sign map-barn">THE BARN</div><div class="map-sign map-creek">LOST CREEK</div>'
-      + '<div class="world-caption"><span class="live-dot"></span> Review and explore ahead. No clock.</div></section>'
+      + '<div class="world-caption"><span class="live-dot"></span> Read, cast, reel, and play. No clock.</div></section>'
+      + '<section class="trail-section"><div class="section-heading"><div><span class="eyebrow dark">AN EARLIER TRAIL</span><h2>Need a measurement warm-up?</h2><p>Module 2 is here whenever you want it.</p></div>' + button('module2', 'Review Module 2', 'forest') + '</div></section>'
       + '<section class="trail-section" id="chapter-list"><div class="section-heading"><div><span class="eyebrow dark">EARLIER RANCH WORK</span><h2>Place-value chapters to revisit.</h2></div>'
       + button('practice', 'Free practice', 'text') + '</div>'
       + '<div class="chapter-grid">' + cards + '</div></section>'
@@ -675,12 +676,14 @@
     const rec = recommendedChapter();
     mount('<section class="journal"><div class="section-heading"><div><span class="eyebrow dark">FOR RYLEE & HIS GROWN-UPS</span><h1>The learning journal</h1></div>'
       + button('map', '← Ranch', 'soft') + '</div><div class="journal-grid"><article class="journal-card"><h2>What are we practicing?</h2>'
-      + '<p>Review the earlier place-value chapters, or play the new Module 2 measurement and patterns trail. These are original practice problems, not a replacement for the Succeed book.</p>'
+      + '<p>Fish through Module 3 math and short creek stories. Earlier Module 2 and place-value work is here for review. These are original practice problems, not a replacement for the Succeed book.</p>'
+      + button('fishing', 'Go fishing', 'gold')
       + button('module2', 'Open Module 2', 'forest')
       + '<label for="parent-start">Starting chapter</label><select id="parent-start"><option value="">Recommend for us</option>'
       + C.list.map(ch => '<option value="' + ch.id + '"' + (state.parentStart === ch.id ? ' selected' : '') + '>Chapter ' + ch.number + '. ' + escape(ch.title) + '</option>').join('')
       + '</select><p class="small">A parent can start on any chapter. An advanced child may take a check without every earlier job.</p>'
       + button('placement', 'Try a short starting check', 'forest')
+      + '<h2>Fishing on this device</h2><p>' + (state.fishing?.trips || 0) + ' trips · ' + (state.fishing?.catches || 0) + ' fish · ' + (state.fishing?.read || 0) + ' stories · ' + (state.fishing?.math || 0) + ' math problems.</p><p class="small">The math spot is a game setting. It does not know the school lesson.</p>'
       + '<h2>Module 2 on this device</h2><p>Game starting point: Lesson ' + metric.lesson + '. This is a game setting, not a record from school.</p>'
       + '<p class="small">' + metricPaused + '</p><ul class="small">' + metricHistory + '</ul>'
       + '<p class="small">The game remembers finished rounds and one current question, but has no day-by-day activity log.</p>'
@@ -719,6 +722,7 @@
     if (!b || b.disabled) return;
     const a = b.dataset.action;
     if (a === 'map') chapterMap();
+    else if (a === 'fishing') { stop(); RanchFishing.open({ target: $('main'), state, save: persist, onExit: chapterMap, onPorch: porch }); }
     else if (a === 'module2') { stop(); RanchModule2.open({ target: $('main'), state, save: persist, onExit: chapterMap, onPorch: porch }); }
     else if (a === 'practice') freePractice();
     else if (a === 'choose') {
