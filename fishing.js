@@ -128,7 +128,8 @@
       commit();
     }
     function progress() {
-      return `<div class="fishing-progress" aria-label="${p.active.caught} of 3 fish caught">${Array.from({length:3}, (_, i) => `<span class="${i < p.active.caught ? 'caught' : ''}">${i < p.active.caught ? '🐟' : '○'}</span>`).join('')}<small>Catch three fish with Grandma</small></div>`;
+      const seen = p.active.caught + (p.active.stage === 'catch' ? 1 : 0);
+      return `<div class="fishing-progress" aria-label="${seen} of 3 fish caught">${Array.from({length:3}, (_, i) => `<span class="${i < seen ? 'caught' : ''}">${i < seen ? '🐟' : '○'}</span>`).join('')}<small>Catch three fish with Grandma</small></div>`;
     }
     function home() {
       const list = topics.map(t => `<option value="${t.id}"${p.focus === t.id ? ' selected' : ''}>${t.short} · ${t.note}</option>`).join('');
