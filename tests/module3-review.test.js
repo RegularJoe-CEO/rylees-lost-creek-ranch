@@ -37,9 +37,17 @@ test('partial products and standard steps equal the product', () => {
 });
 
 test('normalization keeps bounded review progress', () => {
-  const r = Review.normalize({ completed: 2, best: 8, active: { seed: 7, index: 4, correct: 3, firstTry: 2, wrong: 1, solved: true, helped: false, results: [{ skill: 'partial', independent: true }] } });
+  const r = Review.normalize({ resetVersion: Review.RESET_VERSION, completed: 2, best: 8, active: { seed: 7, index: 4, correct: 3, firstTry: 2, wrong: 1, solved: true, helped: false, results: [{ skill: 'partial', independent: true }] } });
   assert.equal(r.best, 8);
   assert.equal(r.active.index, 4);
   assert.equal(r.active.results.length, 1);
   assert.equal(Review.normalize({ best: 99, active: { seed: 2, index: 99 } }).active, null);
+});
+
+test('older review attempts reset once without touching completed history', () => {
+  const r = Review.normalize({ completed: 3, best: 7, active: { seed: 2, index: 2 } });
+  assert.equal(r.active, null);
+  assert.equal(r.completed, 3);
+  assert.equal(r.best, 7);
+  assert.equal(r.resetVersion, Review.RESET_VERSION);
 });

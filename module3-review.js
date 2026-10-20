@@ -2,6 +2,7 @@
   'use strict';
 
   const TOTAL = 10;
+  const RESET_VERSION = 1;
   const labels = {
     warmup: 'Earlier Module 3 warm-up',
     partial: 'Partial products',
@@ -10,7 +11,7 @@
   };
 
   function fresh() {
-    return { completed: 0, best: 0, active: null };
+    return { resetVersion: RESET_VERSION, completed: 0, best: 0, active: null };
   }
 
   function normalize(raw) {
@@ -18,6 +19,7 @@
     if (!raw || typeof raw !== 'object') return out;
     out.completed = Number.isSafeInteger(raw.completed) && raw.completed >= 0 ? Math.min(raw.completed, 10000) : 0;
     out.best = Number.isSafeInteger(raw.best) ? Math.max(0, Math.min(raw.best, TOTAL)) : 0;
+    if (raw.resetVersion !== RESET_VERSION) return out;
     const a = raw.active;
     if (a && typeof a === 'object' && Number.isInteger(a.seed) && Number.isInteger(a.index) && a.index >= 0 && a.index < TOTAL) {
       out.active = {
@@ -138,6 +140,7 @@
     const r = ctx.state.module3Review;
     mount('<section class="review-intro"><img src="assets/fishing-cove.webp" alt="A sunny fishing cove at Lost Creek Ranch."><div class="review-intro-card"><span class="eyebrow dark">TEST REVIEW · MODULE 3</span><h1>Module 3 Mid-Module Review</h1><p>Ten fishing casts review earlier Module 3 work, partial products, the standard algorithm, and multi-step word problems.</p><ul><li>No timer</li><li>Worked help on every question</li><li>New numbers each time</li></ul>'
       + button(r.active ? 'resume' : 'start', r.active ? 'Continue the review' : 'Start the review', 'gold')
+      + (r.active ? button('start', 'Begin again', 'forest') : '')
       + (r.completed ? button('start', 'Start a fresh review', 'forest') : '')
       + button('exit', 'Back to the ranch', 'text')
       + '<p class="small">Best on this device: ' + r.best + ' of ' + TOTAL + ' on the first try. This is original practice aligned to the skills described by his teacher.</p></div></section>');
@@ -154,7 +157,7 @@
     const q = questionAt(a.index, a.seed);
     const fish = Array.from({ length: TOTAL }, (_, i) => '<span class="' + (i < a.index ? 'caught' : i === a.index ? 'current' : '') + '">' + (i < a.index ? '✓' : '🐟') + '</span>').join('');
     const answers = q.choices.map((choice, i) => '<button type="button" class="answer" data-action="review-answer" data-value="' + choice + '" ' + (a.solved ? 'disabled' : '') + '><span class="answer-letter">' + String.fromCharCode(65 + i) + '</span><span>' + comma(choice) + '</span></button>').join('');
-    mount('<section class="review-shell"><div class="review-top">' + button('exit', 'Save and exit', 'text') + '<strong>Module 3 Mid-Module Review</strong><span>Cast ' + (a.index + 1) + ' of ' + TOTAL + '</span></div><div class="review-fish" aria-label="Question ' + (a.index + 1) + ' of ' + TOTAL + '">' + fish + '</div><div class="review-layout"><aside class="review-coach"><img src="assets/grandma.webp" alt="Grandma is ready to help."><span class="eyebrow dark">GRANDMA’S TIP</span><p>Take your time. Decide what the problem is asking before you calculate.</p>' + button('help', 'Show me how', 'forest') + '</aside><article class="review-card"><div class="question-meta"><span>' + labels[q.skill] + '</span><span>' + (a.index + 1) + ' / ' + TOTAL + '</span></div><h1>' + escape(q.prompt) + '</h1><div class="review-answers">' + answers + '</div><div id="review-feedback" class="feedback" role="status" aria-live="polite" ' + (a.solved ? '' : 'hidden') + '>' + (a.solved ? 'That one is in the creel. The answer is ' + comma(q.answer) + '.' : '') + '</div><div id="review-work" class="review-work" ' + (a.helped || a.solved ? '' : 'hidden') + '>' + q.work + '</div><div id="review-next">' + (a.solved ? button('next', a.index === TOTAL - 1 ? 'See my results' : 'Next cast', 'gold') : '') + '</div></article></div></section>');
+    mount('<section class="review-shell"><div class="review-top"><div class="review-top-actions">' + button('exit', 'Save and exit', 'text') + button('start', 'Begin again', 'soft') + '</div><strong>Module 3 Mid-Module Review</strong><span>Cast ' + (a.index + 1) + ' of ' + TOTAL + '</span></div><div class="review-fish" aria-label="Question ' + (a.index + 1) + ' of ' + TOTAL + '">' + fish + '</div><div class="review-layout"><aside class="review-coach"><img src="assets/grandma.webp" alt="Grandma is ready to help."><span class="eyebrow dark">GRANDMA’S TIP</span><p>Take your time. Decide what the problem is asking before you calculate.</p>' + button('help', 'Show me how', 'forest') + '</aside><article class="review-card"><div class="question-meta"><span>' + labels[q.skill] + '</span><span>' + (a.index + 1) + ' / ' + TOTAL + '</span></div><h1>' + escape(q.prompt) + '</h1><div class="review-answers">' + answers + '</div><div id="review-feedback" class="feedback" role="status" aria-live="polite" ' + (a.solved ? '' : 'hidden') + '>' + (a.solved ? 'That one is in the creel. The answer is ' + comma(q.answer) + '.' : '') + '</div><div id="review-work" class="review-work" ' + (a.helped || a.solved ? '' : 'hidden') + '>' + q.work + '</div><div id="review-next">' + (a.solved ? button('next', a.index === TOTAL - 1 ? 'See my results' : 'Next cast', 'gold') : '') + '</div></article></div></section>');
   }
 
   function answer(value) {
@@ -208,7 +211,7 @@
     else if (action === 'next') next();
   });
 
-  const api = { TOTAL, fresh, normalize, questionAt, partials, standardSteps, open };
+  const api = { TOTAL, RESET_VERSION, fresh, normalize, questionAt, partials, standardSteps, open };
   root.RanchModule3Review = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

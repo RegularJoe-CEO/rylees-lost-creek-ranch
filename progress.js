@@ -14,7 +14,7 @@
       chapters, resume: null, explicitChapter: null, parentStart: null,
       metric: { lesson: 1, completed: {}, active: null },
       fishing: { focus: 'products', trips: 0, catches: 0, read: 0, math: 0, active: null },
-      module3Review: { completed: 0, best: 0, active: null },
+      module3Review: { resetVersion: 1, completed: 0, best: 0, active: null },
       placement: { done: false, stoppedAt: null, recommended: 'bundles' },
       sessionSeq: 1, checks: []
     };
