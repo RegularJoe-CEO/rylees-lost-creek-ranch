@@ -82,7 +82,8 @@
     mount('<section class="world"><img class="world-art" src="assets/fishing-cove.webp" alt="A painted fishing cove with a wooden dock, bluebonnets, oak trees, and a wide creek." fetchpriority="high">'
       + '<div class="world-shade"></div><div class="welcome"><span class="eyebrow">TODAY AT LOST CREEK</span><h1>Hey, Rylee.<br>Let’s go fishing.</h1>'
       + '<p>Cast with Grandma, read a creek story, and practice your new math. Every catch gets a gentle release.</p>'
-      + button('fishing', 'Go fishing ' + icon('arrow'), 'gold start-today')
+      + button('module3-review', 'Module 3 Mid-Module Review ' + icon('arrow'), 'gold start-today')
+      + button('fishing', 'Go fishing', 'forest')
       + button('continue', resume ? continueLabel : 'Review place value', 'soft')
       + '</div><div class="map-sign map-barn">THE BARN</div><div class="map-sign map-creek">LOST CREEK</div>'
       + '<div class="world-caption"><span class="live-dot"></span> Read, cast, reel, and play. No clock.</div></section>'
@@ -722,6 +723,7 @@
     if (!b || b.disabled) return;
     const a = b.dataset.action;
     if (a === 'map') chapterMap();
+    else if (a === 'module3-review') { stop(); RanchModule3Review.open({ target: $('main'), state, save: persist, onExit: chapterMap }); }
     else if (a === 'fishing') { stop(); RanchFishing.open({ target: $('main'), state, save: persist, onExit: chapterMap, onPorch: porch }); }
     else if (a === 'module2') { stop(); RanchModule2.open({ target: $('main'), state, save: persist, onExit: chapterMap, onPorch: porch }); }
     else if (a === 'practice') freePractice();

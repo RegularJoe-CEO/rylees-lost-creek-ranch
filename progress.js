@@ -14,6 +14,7 @@
       chapters, resume: null, explicitChapter: null, parentStart: null,
       metric: { lesson: 1, completed: {}, active: null },
       fishing: { focus: 'products', trips: 0, catches: 0, read: 0, math: 0, active: null },
+      module3Review: { completed: 0, best: 0, active: null },
       placement: { done: false, stoppedAt: null, recommended: 'bundles' },
       sessionSeq: 1, checks: []
     };
@@ -118,6 +119,7 @@
         state.chapters = loadChapters(saved);
         state.metric = root.RanchModule2 ? root.RanchModule2.normalize(saved.metric) : state.metric;
         state.fishing = root.RanchFishing ? root.RanchFishing.normalize(saved.fishing) : state.fishing;
+        state.module3Review = root.RanchModule3Review ? root.RanchModule3Review.normalize(saved.module3Review) : state.module3Review;
         state.resume = loadResume(saved);
         state.explicitChapter = chapterIds.includes(saved.explicitChapter) ? saved.explicitChapter : null;
         state.parentStart = chapterIds.includes(saved.parentStart) ? saved.parentStart : null;
